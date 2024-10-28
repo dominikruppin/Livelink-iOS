@@ -1,52 +1,89 @@
-[![Review Assignment Due Date](https://classroom.github.com/assets/deadline-readme-button-22041afd0340ce965d47ae6ef1cefeee28c7c493a6346c4f15d667ab976d596c.svg)](https://classroom.github.com/a/lf0EMZwr)
-# Name der App
+# Livelink
 
-**Füge hier einen kurzen, knackigen Slogan ein, um deine App zu bewerben.**
+Willkommen zu **Livelink**, der App, mit der du in Echtzeit mit anderen Nutzern chatten kannst, die sich in denselben Channels befinden. Entdecke neue Leute und Themen.
+Entwickelt wurde die App im Rahmen des Abschlussprojekts für das Syntax Institut.
 
-Beschreibe hier in ein paar Sätzen, was deine App bietet.
+## Inhaltsverzeichnis
 
-Für wen ist sie geeignet? Welches Problem löst sie? Was macht deine App anders/besser als andere Apps?
-Vermeide es, hier allzusehr in technische Details zu gehen.
-
-
-## Design
-Füge hier am Ende die Screenshots deiner App ein (achte hierbei auf die Guidelines).
-
-<p>
-  <img src="./img/screen1.png" width="200">
-  <img src="./img/screen2.png" width="200">
-  <img src="./img/screen3.png" width="200">
-</p>
-
+1. [Features](#features)
+    - [Profile](#profile)
+    - [Wildspace](#wildspace)
+    - [Profilbild](#profilbild)
+    - [Channels](#channels)
+    - [OnlineUser Liste](#onlineuser-liste)
+    - [Bot "Paul"](#bot-paul)
+    - [Böse Nutzer bestrafen](#böse-nutzer-bestrafen)
+    - [Nutzersuche](#nutzersuche)
+2. [Tech-Stack](#tech-stack)
 
 ## Features
-Hier kommen alle Features rein, welche deine App bietet.
 
-**Tipp: Du kannst diese Punkte auch am Anfang ausfüllen und mit der Zeit abhaken, sodass am Ende eine vollständige Liste entsteht.**
+### Profile
+Erstelle ein individuelles Profil mit Angaben wie Alter, Geschlecht, Geburtsdatum und mehr.
+<details>
+<summary>Screenshots</summary>
+<img src="/profil1.png" alt="Profile Screenshot" width="300">
+</details>
+  
+### Wildspace
+Verfasse eigene Texte oder binde ein Bild ein, um dein Profil persönlicher zu gestalten.
+<details>
+<summary>Screenshots</summary>
+<img src="/wildspace.png" alt="Wildspace Screenshot" width="300">
+</details>
 
-- [x] Feature 1
-- [x] Feature 2
-- [ ] ...
+### Profilbild
+Lade ein Profilbild hoch, um dein Profil noch ansprechender zu machen.
+<details>
+<summary>Screenshots</summary>
+<img src="/foto_upload.png" alt="Profile Picture Screenshot" width="300">
+</details>
 
+### Channels
+Trete verschiedenen Channels bei, die in Kategorien unterteilt sind, und chatte live mit anderen Nutzern.
+<details>
+<summary>Screenshots</summary>
+<img src="/channels.png" alt="Channels Screenshot" width="300">
+</details>
 
-## Technischer Aufbau
+### OnlineUser Liste
+In jedem Channel kannst du sehen wer online ist, inklusive Alter, Geschlecht
+<details>
+<summary>Screenshots</summary>
+<img src="/onlineuser.png" alt="Channels Screenshot" width="300">
+</details>
 
-#### Projektaufbau
-Eine kurze Beschreibung deiner Ordnerstruktur und Architektur (MVVM, Repositories) um Außenstehenden zu helfen, sich in deinem Projekt zurecht zu finden.
+### Bot "Paul"
+In den Channels steht dir unser Bot Paul zur Verfügung, der viele Fragen zu verschiedenen Themen beantworten kann.
+<details>
+<summary>Screenshots</summary>
+<img src="/bot.png" alt="Bot Paul Screenshot" width="300">
+</details>
 
-#### Datenspeicherung
-Welche Daten speicherst du? Wo und wie (Firebase, Core Data)? Erkläre hier auch, warum du den jeweiligen Dienst nutzt (offline-first, Sync usw.).
+### Böse Nutzer bestrafen
+Es steht ein Sperrsystem für Admins zur Verfügung.
+<details>
+<summary>Screenshots</summary>
+<img src="/sperrung1.png" alt="Nutzersperre aus Sicht eines Admins" width="300">
+<img src="/sperrung2.png" alt="Nutzersperre aus Sicht eines Users" width="300">
+</details>
 
-#### API Calls
-Welche APIs verwendest du?
+### Nutzersuche
+Nach Nutzern suchen.
+<details>
+<summary>Screenshots</summary>
+<img src="/nutzersuche.png" alt="Nutzersuche Screenshot" width="300">
+</details>
 
-#### 3rd-Party Frameworks
-Verwendest du Frameworks, die nicht von dir stammen? Bspw. Swift Packages für Firebase, fertige SwiftUI-Views o.Ä.? Gib diese hier an.
+## Tech-Stack
 
-
-## Ausblick
-Beschreibe hier, wo die Reise nach deinem Praxisprojekt hin geht. Was möchtest du in Zukunft noch ergänzen?
-
-- [ ] Geplantes Feature 1
-- [ ] Geplantes Feature 2
-- [ ] ...
+- **Kotlin**: Programmiersprache für die Android-Entwicklung.
+- **Firebase Storage**: Zum Speichern von Benutzerinhalten wie Profilbildern und Hintergründen.
+- **Firebase Firestore**: Datenbank zum Speichern von Benutzer- und Chat-Daten.
+- **Firebase Auth**: Authentifizierung und Benutzerverwaltung.
+- **HTML**: Zur Darstellung und Formatierung von Inhalten innerhalb der App.
+- **Retrofit: openPLZ API**: Zum abrufen von Informationen zu einer Postleitzahl
+- **Retrofit: Perplexity API**: Anbindung an den Chatbot zum beantworten von Fragen
+- **Coil**: Laden von Bildern
+- **MVVM Pattern**
+- **Benutzte Librarys**: hdodenhof/CircleImageView
