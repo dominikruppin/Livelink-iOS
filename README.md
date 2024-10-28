@@ -77,13 +77,12 @@ Nach Nutzern suchen.
 
 ## Tech-Stack
 
-- **Kotlin**: Programmiersprache für die Android-Entwicklung.
+- **Swift**: Programmiersprache für die iOS-Entwicklung.
+- **SwiftUI**: UI-Programmiersprache für die iOS-Entwicklung.
 - **Firebase Storage**: Zum Speichern von Benutzerinhalten wie Profilbildern und Hintergründen.
 - **Firebase Firestore**: Datenbank zum Speichern von Benutzer- und Chat-Daten.
 - **Firebase Auth**: Authentifizierung und Benutzerverwaltung.
 - **HTML**: Zur Darstellung und Formatierung von Inhalten innerhalb der App.
-- **Retrofit: openPLZ API**: Zum abrufen von Informationen zu einer Postleitzahl
-- **Retrofit: Perplexity API**: Anbindung an den Chatbot zum beantworten von Fragen
-- **Coil**: Laden von Bildern
+- **openPLZ API**: Zum abrufen von Informationen zu einer Postleitzahl
+- **Perplexity API**: Anbindung an den Chatbot zum beantworten von Fragen
 - **MVVM Pattern**
-- **Benutzte Librarys**: hdodenhof/CircleImageView
