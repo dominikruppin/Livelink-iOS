@@ -6,6 +6,14 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		F6EA830E2CD0279A00718457 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = F6EA830D2CD0279A00718457 /* GoogleService-Info.plist */; };
+		F6EA83112CD0280B00718457 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = F6EA83102CD0280B00718457 /* FirebaseAuth */; };
+		F6EA83132CD0280B00718457 /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = F6EA83122CD0280B00718457 /* FirebaseCore */; };
+		F6EA83152CD0280B00718457 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = F6EA83142CD0280B00718457 /* FirebaseFirestore */; };
+		F6EA83172CD0280B00718457 /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = F6EA83162CD0280B00718457 /* FirebaseStorage */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		F6EA82E62CD0259C00718457 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -27,6 +35,7 @@
 		F6EA82D52CD0259A00718457 /* Livelink.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Livelink.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		F6EA82E52CD0259C00718457 /* LivelinkTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = LivelinkTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		F6EA82EF2CD0259C00718457 /* LivelinkUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = LivelinkUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		F6EA830D2CD0279A00718457 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -52,6 +61,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F6EA83132CD0280B00718457 /* FirebaseCore in Frameworks */,
+				F6EA83172CD0280B00718457 /* FirebaseStorage in Frameworks */,
+				F6EA83112CD0280B00718457 /* FirebaseAuth in Frameworks */,
+				F6EA83152CD0280B00718457 /* FirebaseFirestore in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -75,6 +88,7 @@
 		F6EA82CC2CD0259A00718457 = {
 			isa = PBXGroup;
 			children = (
+				F6EA830D2CD0279A00718457 /* GoogleService-Info.plist */,
 				F6EA82D72CD0259A00718457 /* Livelink */,
 				F6EA82E82CD0259C00718457 /* LivelinkTests */,
 				F6EA82F22CD0259C00718457 /* LivelinkUITests */,
@@ -112,6 +126,10 @@
 			);
 			name = Livelink;
 			packageProductDependencies = (
+				F6EA83102CD0280B00718457 /* FirebaseAuth */,
+				F6EA83122CD0280B00718457 /* FirebaseCore */,
+				F6EA83142CD0280B00718457 /* FirebaseFirestore */,
+				F6EA83162CD0280B00718457 /* FirebaseStorage */,
 			);
 			productName = Livelink;
 			productReference = F6EA82D52CD0259A00718457 /* Livelink.app */;
@@ -195,6 +213,9 @@
 			);
 			mainGroup = F6EA82CC2CD0259A00718457;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				F6EA830F2CD0280B00718457 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = F6EA82D62CD0259A00718457 /* Products */;
 			projectDirPath = "";
@@ -212,6 +233,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F6EA830E2CD0279A00718457 /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -399,11 +421,14 @@
 				DEVELOPMENT_TEAM = 5H64FJP5PA;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = LiveLink;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.social-networking";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -411,9 +436,13 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.Livelink;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Debug;
 		};
@@ -428,11 +457,14 @@
 				DEVELOPMENT_TEAM = 5H64FJP5PA;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = LiveLink;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.social-networking";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -440,9 +472,13 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.Livelink;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Release;
 		};
@@ -558,6 +594,40 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		F6EA830F2CD0280B00718457 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 11.4.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		F6EA83102CD0280B00718457 /* FirebaseAuth */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F6EA830F2CD0280B00718457 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAuth;
+		};
+		F6EA83122CD0280B00718457 /* FirebaseCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F6EA830F2CD0280B00718457 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseCore;
+		};
+		F6EA83142CD0280B00718457 /* FirebaseFirestore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F6EA830F2CD0280B00718457 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseFirestore;
+		};
+		F6EA83162CD0280B00718457 /* FirebaseStorage */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F6EA830F2CD0280B00718457 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseStorage;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = F6EA82CD2CD0259A00718457 /* Project object */;
 }
