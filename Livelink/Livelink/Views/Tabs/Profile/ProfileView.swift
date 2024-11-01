@@ -9,10 +9,18 @@ import SwiftUI
 
 struct ProfileView: View {
     var body: some View {
-        Text("Hello, ProfileView!")
+        ZStack {
+            Image("background")
+                .resizable()
+                .scaledToFill()
+                .edgesIgnoringSafeArea(.all)
+
+
+        }
     }
 }
 
 #Preview {
-    ProfileView()
+    HomeView()
+        .environmentObject(UserDatasViewModel())
 }

@@ -11,8 +11,8 @@ import FirebaseFirestore
 import Combine
 
 class AuthViewModel: ObservableObject {
-    private let auth = Auth.auth()
-    private let database = Firestore.firestore()
+    private let auth = FirebaseManager.shared.auth
+    private let database = FirebaseManager.shared.database
     private let usersCollectionReference: CollectionReference
     
     @Published var currentUser: User? // Aktuell angemeldeter Benutzer

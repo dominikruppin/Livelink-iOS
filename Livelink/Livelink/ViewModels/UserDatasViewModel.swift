@@ -9,7 +9,7 @@ import FirebaseFirestore
 import Combine
 
 class UserDatasViewModel: ObservableObject {
-    private let database = Firestore.firestore()
+    private let database = FirebaseManager.shared.database
     private let usersCollectionReference: CollectionReference
     private let channelsReference: CollectionReference
     private var cancellables = Set<AnyCancellable>() // Für Combine
@@ -17,9 +17,6 @@ class UserDatasViewModel: ObservableObject {
     @Published var userData: UserData?
     @Published var profileUserData: UserData?
     @Published var searchResults: [UserData] = []
-    @Published var onlineUsers: [OnlineUser] = []
-    @Published var currentChannel: ChannelJoin?
-    @Published var messages: [Message] = []
     @Published var isLoadingUserData: Bool = true
     
     init() {

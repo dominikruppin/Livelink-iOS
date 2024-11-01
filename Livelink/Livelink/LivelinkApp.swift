@@ -22,9 +22,7 @@ struct LivelinkApp: App {
     var body: some Scene {
         WindowGroup {
             if authViewModel.currentUser != nil {
-                // Lade die Benutzerdaten, bevor zur OverView navigiert wird
                 if userDatasViewModel.isLoadingUserData {
-                    // Ladebildschirm anzeigen
                     LoadingView()
                         .environmentObject(userDatasViewModel)
                         .onAppear {
@@ -33,12 +31,10 @@ struct LivelinkApp: App {
                             }
                         }
                 } else {
-                    // Falls die Benutzerdaten bereits geladen sind, zeige die OverView
                     OverView()
                         .environmentObject(userDatasViewModel)
                 }
             } else {
-                // Falls nicht eingeloggt, zur LoginView
                 LoginView()
                     .environmentObject(authViewModel)
             }

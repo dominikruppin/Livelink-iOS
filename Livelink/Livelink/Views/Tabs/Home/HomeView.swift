@@ -74,6 +74,25 @@ struct HomeView: View {
                         .padding(.horizontal)
                     }
                 }
+                
+                // Profilbesucher anzeigen
+                if let userData = userDatasViewModel.userData, !userData.lastChannels.isEmpty {
+                    Text("Letzte Channel:")
+                        .font(.headline)
+                        .foregroundColor(.white)
+                        .padding(.top)
+
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 10) {
+                            Spacer(minLength: 16)
+                            ForEach(userData.lastChannels, id: \.name) { channel in
+                                LastChannelView(channel: channel)
+                            }
+                            Spacer(minLength: 16)
+                        }
+                        .padding(.horizontal)
+                    }
+                }
 
                 Spacer()
             }

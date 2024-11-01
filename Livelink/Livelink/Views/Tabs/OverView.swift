@@ -8,8 +8,6 @@
 import SwiftUI
 
 struct OverView: View {
-    @EnvironmentObject var authViewModel: AuthViewModel
-
     var body: some View {
         ZStack {
             MainTabView()
@@ -20,6 +18,5 @@ struct OverView: View {
 
 #Preview {
     OverView()
-        .environmentObject(AuthViewModel())
 }
 

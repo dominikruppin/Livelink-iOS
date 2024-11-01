@@ -9,10 +9,18 @@ import SwiftUI
 
 struct ChannelsView: View {
     var body: some View {
-        Text("Hello, ChannelsView!")
+        ZStack {
+            Image("background")
+                .resizable()
+                .scaledToFill()
+                .edgesIgnoringSafeArea(.all)
+
+
+        }
     }
 }
 
 #Preview {
-    ChannelsView()
+    HomeView()
+        .environmentObject(UserDatasViewModel())
 }
