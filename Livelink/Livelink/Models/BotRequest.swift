@@ -9,5 +9,5 @@
 struct BotRequest: Codable {
     let model: String
     let messages: [BotMessage]
-    let language: String = "de"
+    var language: String = "de"
 }

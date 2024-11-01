@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct LoginView: View {
-    @StateObject private var viewModel = AuthViewModel() // AuthViewModel initialisieren
+    @EnvironmentObject var viewModel: AuthViewModel
     @State private var username: String = "" // Benutzername speichern
     @State private var password: String = "" // Passwort speichern
     @State private var loginError: String? // Fehlernachricht
@@ -27,7 +27,7 @@ struct LoginView: View {
                         .font(.largeTitle)
                         .fontWeight(.bold)
                         .foregroundColor(.white)
-                        .padding(.top, 60) // Mehr Abstand nach oben
+                        .padding(.top, 60)
 
                     Spacer().frame(height: 60)
 
@@ -73,16 +73,15 @@ struct LoginView: View {
                     // Navigationslink zur Registrierung
                     NavigationLink(destination: SignUpView()) {
                         Text("Noch kein Konto? Registriere dich hier.")
-                            .foregroundColor(Color.blue)
+                            .foregroundColor(Color.white)
                             .padding()
                     }
                     .padding(.top, 10)
 
                     Spacer()
                 }
-                .padding(.bottom, 40) // Abstand nach unten
+                .padding(.bottom, 40)
                 .onAppear {
-                    // Überprüfe, ob der Benutzer bereits eingeloggt ist
                     viewModel.setupUserEnv()
                 }
             }
@@ -114,6 +113,6 @@ struct LoginView: View {
 
 struct LoginView_Previews: PreviewProvider {
     static var previews: some View {
-        LoginView()
+        LoginView().environmentObject(AuthViewModel())
     }
 }

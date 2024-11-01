@@ -16,8 +16,8 @@ class AuthViewModel: ObservableObject {
     private let usersCollectionReference: CollectionReference
     
     @Published var currentUser: User? // Aktuell angemeldeter Benutzer
-    @Published var userData: UserData? // UserData des angemeldeten Benutzers
     @Published var errorMessage: String? // Fehlermeldungen
+    @Published var userDataViewModel = UserDatasViewModel()
     private var cancellables = Set<AnyCancellable>() // Für Combine
     
     init() {
@@ -29,52 +29,16 @@ class AuthViewModel: ObservableObject {
     func setupUserEnv() {
         print("setupUserEnv aufgerufen")
         guard let user = auth.currentUser else {
-            currentUser = nil // Kein Benutzer eingeloggt
-            userData = nil // Benutzer-Daten zurücksetzen
+            currentUser = nil // Aktuellen Nutzer entfernen
+            userDataViewModel.userData = nil // UserDaten entfernen
             return
         }
-        
+
         print("aktueller user: \(user)")
         currentUser = user
-        
-        // UserData laden, falls der Benutzer eingeloggt ist
-        loadUserData(for: user.uid)
+        userDataViewModel.loadUserData(for: user.uid)
     }
     
-    // UserData für den angemeldeten Benutzer laden
-    private func loadUserData(for uid: String) {
-        let userDataDocumentReference = usersCollectionReference.document(uid)
-        
-        // Snapshot-Listener hinzufügen
-        userDataDocumentReference.addSnapshotListener { [weak self] documentSnapshot, error in
-            if let error = error {
-                print("Fehler beim Laden der User-Daten: \(error.localizedDescription)")
-                return
-            }
-            
-            guard let document = documentSnapshot else {
-                print("Dokument existiert nicht.")
-                return
-            }
-            
-            if document.exists, let data = document.data() {
-                do {
-                    // Versuche die Daten in UserData zu decodieren
-                    let userData = try Firestore.Decoder().decode(UserData.self, from: data)
-                    self?.userData = userData // Speichere die Benutzer-Daten
-                    print("Benutzerdaten erfolgreich geladen: \(userData)")
-                } catch {
-                    print("Fehler beim Decodieren der Benutzerdaten: \(error.localizedDescription)")
-                }
-            } else {
-                print("Benutzerdaten existieren nicht.")
-                self?.userData = nil // Benutzer-Daten zurücksetzen, wenn sie nicht existieren
-            }
-        }
-    }
-    
-    
-    // Funktion zum Registrieren eines neuen Nutzers
     func register(username: String, email: String, password: String, completion: @escaping (Bool) -> Void) {
         auth.createUser(withEmail: email, password: password) { [weak self] result, error in
             guard let self = self else { return }
@@ -86,25 +50,37 @@ class AuthViewModel: ObservableObject {
             }
             
             guard let user = result?.user else { return }
-            
-            let userData = [
-                "username": username,
-                "usernameLowercase": username.lowercased(),
-                "email": email
-            ]
-            
-            // UserData in Firestore speichern
-            self.usersCollectionReference.document(user.uid).setData(userData) { error in
-                if let error = error {
-                    print("Fehler beim Speichern der UserData: \(error.localizedDescription)")
-                    completion(false)
-                } else {
-                    completion(true) // Erfolgreich gespeichert
+
+            // Erstellen einer Instanz von UserData
+            let newUserData = UserData(
+                username: username,
+                usernameLowercase: username.lowercased(),
+                email: email,
+                regDate: nil
+            )
+
+            // User-Daten in Firestore speichern
+            do {
+                // Umwandeln der neuen User-Daten
+                var data = try Firestore.Encoder().encode(newUserData)
+                data["regDate"] = FieldValue.serverTimestamp() // Serverseitiger Timestamp
+
+                self.usersCollectionReference.document(user.uid).setData(data) { error in
+                    if let error = error {
+                        print("Fehler beim Speichern der UserData: \(error.localizedDescription)")
+                        completion(false)
+                    } else {
+                        completion(true) // Erfolgreich gespeichert
+                    }
                 }
+            } catch {
+                print("Fehler beim Kodieren der User-Daten: \(error.localizedDescription)")
+                completion(false)
             }
         }
     }
-    
+
+
     // Funktion prüft, ob ein Username vergeben ist
     func isUsernameTaken(username: String, completion: @escaping (Bool) -> Void) {
         let lowercaseUsername = username.lowercased()

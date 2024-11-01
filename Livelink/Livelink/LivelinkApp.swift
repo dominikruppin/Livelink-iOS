@@ -12,6 +12,7 @@ import FirebaseAuth
 @main
 struct LivelinkApp: App {
     @StateObject private var authViewModel = AuthViewModel()
+    @StateObject private var userDatasViewModel = UserDatasViewModel()
     
     init() {
         FirebaseConfiguration.shared.setLoggerLevel(.min)
@@ -19,7 +20,16 @@ struct LivelinkApp: App {
     }
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            // Überprüfen, ob ein Nutzer eingeloggt ist...
+            if authViewModel.currentUser != nil {
+                // Falls ja, ab in die HomeView
+                OverView()
+                    .environmentObject(userDatasViewModel)
+            } else {
+                // Falls nein, ab in die LoginView du Schlingel
+                LoginView()
+                    .environmentObject(authViewModel)
+            }
         }
     }
 }

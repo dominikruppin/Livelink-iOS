@@ -26,6 +26,6 @@ struct UserData: Codable {
     var lastChannels: [Channel] = []
     var recentProfileVisitors: [ProfileVisitor] = []
     var lockInfo: LockInfo? = nil
-    var regDate: Timestamp = Timestamp(date: Date())
+    var regDate: Timestamp?
     var wildspace: String = ""
 }

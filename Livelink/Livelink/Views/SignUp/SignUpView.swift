@@ -6,63 +6,182 @@
 //
 
 import SwiftUI
+import Combine
 
 struct SignUpView: View {
+    @Environment(\.presentationMode) var presentationMode // Für die Navigation zurück
+    @StateObject private var viewModel = AuthViewModel()
     @State private var username: String = ""
     @State private var email: String = ""
     @State private var password: String = ""
     @State private var confirmPassword: String = ""
+    
     @State private var registrationError: String?
-
+    @State private var isUsernameAvailable: Bool = true
+    @State private var isUsernameValid: Bool = true
+    @State private var isEmailValid: Bool = true
+    @State private var isPasswordConfirmed: Bool = true
+    
+    // Für den Hinweis zur Registrierung
+    @State private var registrationMessage: String?
+    @State private var showRegistrationMessage: Bool = false
+    
+    // Regex für gültige Zeichen in Nutzernamen
+    private let validUsernameRegex = "^[A-Za-z0-9 ]+$"
+    
     var body: some View {
-        VStack {
-            Text("Registrierung")
-                .font(.largeTitle)
-                .padding()
-
-            TextField("Benutzername", text: $username)
-                .textFieldStyle(RoundedBorderTextFieldStyle())
-                .padding()
-
-            TextField("E-Mail", text: $email)
-                .textFieldStyle(RoundedBorderTextFieldStyle())
-                .padding()
-
-            SecureField("Passwort", text: $password)
-                .textFieldStyle(RoundedBorderTextFieldStyle())
-                .padding()
-
-            SecureField("Passwort bestätigen", text: $confirmPassword)
-                .textFieldStyle(RoundedBorderTextFieldStyle())
-                .padding()
-
-            if let errorMessage = registrationError {
-                Text(errorMessage)
-                    .foregroundColor(.red)
-                    .padding()
-            }
-
-            Button(action: {
-                // Registrierung durchführen
-            }) {
+        ZStack {
+            Image("background")
+                .resizable()
+                .scaledToFill()
+                .edgesIgnoringSafeArea(.all)
+            
+            VStack {
                 Text("Registrieren")
-                    .frame(maxWidth: .infinity)
-                    .padding()
-                    .background(Color.blue)
+                    .font(.largeTitle)
+                    .fontWeight(.bold)
                     .foregroundColor(.white)
-                    .cornerRadius(8)
+                    .padding(.top, 60)
+                
+                Spacer().frame(height: 60)
+                
+                // Benutzername-Eingabefeld mit Verfügbarkeit-Check
+                VStack(alignment: .leading) {
+                    TextField("Benutzername", text: $username)
+                        .onChange(of: username, perform: { _ in validateUsername() })
+                        .padding()
+                        .background(Color.white.opacity(0.9))
+                        .cornerRadius(10)
+                        .frame(maxWidth: 300)
+                        .padding(.horizontal)
+                    
+                    if !isUsernameAvailable {
+                        Text("Benutzername bereits vergeben")
+                            .foregroundColor(.red)
+                    } else if !isUsernameValid {
+                        Text("Ungültiger Benutzername (nur Buchstaben, Zahlen und Leerzeichen)")
+                            .foregroundColor(.red)
+                    }
+                }
+                
+                // E-Mail-Eingabefeld mit Validierung
+                VStack(alignment: .leading) {
+                    TextField("E-Mail", text: $email)
+                        .onChange(of: email) { _ in isEmailValid = validateEmail(email) }
+                        .padding()
+                        .background(Color.white.opacity(0.9))
+                        .cornerRadius(10)
+                        .frame(maxWidth: 300)
+                        .padding(.horizontal)
+                    
+                    if !isEmailValid {
+                        Text("Ungültige E-Mail-Adresse")
+                            .foregroundColor(.red)
+                    }
+                }
+                
+                // Passwort-Eingabefelder mit Passwort-Bestätigung
+                SecureField("Passwort", text: $password)
+                    .padding()
+                    .background(Color.white.opacity(0.9))
+                    .cornerRadius(10)
+                    .frame(maxWidth: 300)
+                    .padding(.horizontal)
+                
+                SecureField("Passwort bestätigen", text: $confirmPassword)
+                    .onChange(of: confirmPassword) { _ in
+                        isPasswordConfirmed = (password == confirmPassword)
+                    }
+                    .padding()
+                    .background(Color.white.opacity(0.9))
+                    .cornerRadius(10)
+                    .frame(maxWidth: 300)
+                    .padding(.horizontal)
+                
+                if !isPasswordConfirmed {
+                    Text("Passwörter stimmen nicht überein")
+                        .foregroundColor(.red)
+                        .padding(.top, 5)
+                }
+                
+                if let errorMessage = registrationError {
+                    Text(errorMessage)
+                        .foregroundColor(.red)
+                        .padding()
+                }
+                
+                if showRegistrationMessage, let message = registrationMessage {
+                    Text(message)
+                        .foregroundColor(.green)
+                        .padding()
+                        .transition(.opacity)
+                }
+                
+                Spacer().frame(height: 30)
+                
+                // Registrieren-Button
+                Button(action: register) {
+                    Text("Registrieren")
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(Color.blue)
+                        .foregroundColor(.white)
+                        .cornerRadius(10)
+                }
+                .frame(maxWidth: 300)
+                .padding(.horizontal)
+                
+                Spacer()
             }
-            .padding()
-
-            Spacer()
+            .padding(.bottom, 40)
         }
-        .padding()
+    }
+    
+    private func register() {
+        // Vor der Registrierung alle Felder überprüfen
+        guard isUsernameAvailable, isUsernameValid, isEmailValid, isPasswordConfirmed else {
+            registrationError = "Bitte alle Felder korrekt ausfüllen."
+            return
+        }
+        
+        viewModel.register(username: username, email: email, password: password) { success in
+            if success {
+                registrationMessage = "Registrierung erfolgreich! Du wirst weitergeleitet..."
+                showRegistrationMessage = true
+                
+                // Zeige den Hinweis und leite zur LoginView um
+                DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+                    presentationMode.wrappedValue.dismiss() // Zurück zur LoginView
+                }
+            } else {
+                registrationError = "Fehler bei der Registrierung. Versuche es erneut."
+                registrationMessage = nil
+                showRegistrationMessage = false
+            }
+        }
+    }
+    
+    private func validateUsername() {
+        // Überprüfen, ob der Benutzername gültig ist
+        isUsernameValid = username.range(of: validUsernameRegex, options: .regularExpression) != nil
+        if isUsernameValid {
+            viewModel.isUsernameTaken(username: username) { isTaken in
+                isUsernameAvailable = !isTaken
+            }
+        } else {
+            isUsernameAvailable = true
+        }
+    }
+    
+    private func validateEmail(_ email: String) -> Bool {
+        // Regex Prüfung für die Emailadresse
+        let emailRegex = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$"
+        return email.range(of: emailRegex, options: .regularExpression) != nil
     }
 }
 
-struct RegistrationView_Previews: PreviewProvider {
+struct SignUpView_Previews: PreviewProvider {
     static var previews: some View {
-        SignUpView()
+        SignUpView().environmentObject(AuthViewModel())
     }
 }
-
