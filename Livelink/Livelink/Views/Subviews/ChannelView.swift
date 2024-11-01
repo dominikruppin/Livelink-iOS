@@ -1,5 +1,5 @@
 //
-//  LastChannelView.swift
+//  ChannelView.swift
 //  Livelink
 //
 //  Created by Dominik Ruppin on 02.11.24.
@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct LastChannelView: View {
+struct ChannelView: View {
     var channel: Channel
 
     var body: some View {
@@ -42,6 +42,6 @@ struct LastChannelView: View {
 }
 
 #Preview {
-    LastChannelView(channel: Channel(name: "Beispiel Kanal", backgroundUrl: "https://example.com/image.jpg", category: ""))
+    ChannelView(channel: Channel(name: "Beispiel Kanal", backgroundUrl: "https://example.com/image.jpg", category: ""))
 }
 

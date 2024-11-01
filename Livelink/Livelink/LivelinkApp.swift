@@ -13,6 +13,7 @@ import FirebaseAuth
 struct LivelinkApp: App {
     @StateObject private var authViewModel = AuthViewModel()
     @StateObject private var userDatasViewModel = UserDatasViewModel()
+    @StateObject private var channelsViewModel = ChannelsViewModel()
     
     init() {
         FirebaseConfiguration.shared.setLoggerLevel(.min)
@@ -33,6 +34,7 @@ struct LivelinkApp: App {
                 } else {
                     OverView()
                         .environmentObject(userDatasViewModel)
+                        .environmentObject(channelsViewModel)
                 }
             } else {
                 LoginView()

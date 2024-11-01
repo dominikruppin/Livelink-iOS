@@ -86,7 +86,7 @@ struct HomeView: View {
                         HStack(spacing: 10) {
                             Spacer(minLength: 16)
                             ForEach(userData.lastChannels, id: \.name) { channel in
-                                LastChannelView(channel: channel)
+                                ChannelView(channel: channel)
                             }
                             Spacer(minLength: 16)
                         }
