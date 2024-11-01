@@ -12,6 +12,7 @@
 		F6EA83132CD0280B00718457 /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = F6EA83122CD0280B00718457 /* FirebaseCore */; };
 		F6EA83152CD0280B00718457 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = F6EA83142CD0280B00718457 /* FirebaseFirestore */; };
 		F6EA83172CD0280B00718457 /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = F6EA83162CD0280B00718457 /* FirebaseStorage */; };
+		F6EA837A2CD586A900718457 /* SwiftUIX in Frameworks */ = {isa = PBXBuildFile; productRef = F6EA83792CD586A900718457 /* SwiftUIX */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -64,6 +65,7 @@
 				F6EA83132CD0280B00718457 /* FirebaseCore in Frameworks */,
 				F6EA83172CD0280B00718457 /* FirebaseStorage in Frameworks */,
 				F6EA83112CD0280B00718457 /* FirebaseAuth in Frameworks */,
+				F6EA837A2CD586A900718457 /* SwiftUIX in Frameworks */,
 				F6EA83152CD0280B00718457 /* FirebaseFirestore in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -130,6 +132,7 @@
 				F6EA83122CD0280B00718457 /* FirebaseCore */,
 				F6EA83142CD0280B00718457 /* FirebaseFirestore */,
 				F6EA83162CD0280B00718457 /* FirebaseStorage */,
+				F6EA83792CD586A900718457 /* SwiftUIX */,
 			);
 			productName = Livelink;
 			productReference = F6EA82D52CD0259A00718457 /* Livelink.app */;
@@ -215,6 +218,7 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				F6EA830F2CD0280B00718457 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+				F6EA83782CD586A900718457 /* XCRemoteSwiftPackageReference "SwiftUIX" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = F6EA82D62CD0259A00718457 /* Products */;
@@ -604,6 +608,14 @@
 				minimumVersion = 11.4.0;
 			};
 		};
+		F6EA83782CD586A900718457 /* XCRemoteSwiftPackageReference "SwiftUIX" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/SwiftUIX/SwiftUIX";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.2.3;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -626,6 +638,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = F6EA830F2CD0280B00718457 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseStorage;
+		};
+		F6EA83792CD586A900718457 /* SwiftUIX */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F6EA83782CD586A900718457 /* XCRemoteSwiftPackageReference "SwiftUIX" */;
+			productName = SwiftUIX;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

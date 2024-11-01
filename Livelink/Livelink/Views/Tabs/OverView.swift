@@ -14,6 +14,7 @@ struct OverView: View {
         ZStack {
             MainTabView()
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 }
 
