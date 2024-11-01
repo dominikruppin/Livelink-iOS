@@ -56,6 +56,25 @@ struct HomeView: View {
                     .padding(.horizontal, 16)
                 }
 
+                // Profilbesucher anzeigen
+                if let userData = userDatasViewModel.userData, !userData.recentProfileVisitors.isEmpty {
+                    Text("Profilbesucher:")
+                        .font(.headline)
+                        .foregroundColor(.white)
+                        .padding(.top)
+
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 10) {
+                            Spacer(minLength: 16)
+                            ForEach(userData.recentProfileVisitors, id: \.username) { visitor in
+                                ProfileVisitorView(visitor: visitor)
+                            }
+                            Spacer(minLength: 16)
+                        }
+                        .padding(.horizontal)
+                    }
+                }
+
                 Spacer()
             }
             .padding(.top, 40)
