@@ -20,6 +20,7 @@ class UserDatasViewModel: ObservableObject {
     @Published var onlineUsers: [OnlineUser] = []
     @Published var currentChannel: ChannelJoin?
     @Published var messages: [Message] = []
+    @Published var isLoadingUserData: Bool = true
     
     init() {
         self.usersCollectionReference = database.collection("users")
@@ -28,11 +29,13 @@ class UserDatasViewModel: ObservableObject {
     
     // Laden der Nutzerdaten mit Snapshot-Listener
     func loadUserData(for uid: String) {
+        isLoadingUserData = true
         let userDataDocumentReference = usersCollectionReference.document(uid)
         
         userDataDocumentReference.addSnapshotListener { [weak self] documentSnapshot, error in
             if let error = error {
                 print("Fehler beim Laden der User-Daten: \(error.localizedDescription)")
+                self?.isLoadingUserData = false
                 return
             }
             
@@ -40,6 +43,7 @@ class UserDatasViewModel: ObservableObject {
                   let data = document.data() else {
                 print("Dokument existiert nicht oder enthält keine Daten.")
                 self?.userData = nil
+                self?.isLoadingUserData = false
                 return
             }
             
@@ -51,6 +55,7 @@ class UserDatasViewModel: ObservableObject {
             } catch {
                 print("Fehler beim Decodieren der User-Daten: \(error.localizedDescription)")
             }
+            self?.isLoadingUserData = false
         }
     }
     

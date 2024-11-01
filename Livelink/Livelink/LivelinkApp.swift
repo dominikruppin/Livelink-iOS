@@ -18,15 +18,27 @@ struct LivelinkApp: App {
         FirebaseConfiguration.shared.setLoggerLevel(.min)
         FirebaseApp.configure()
     }
+    
     var body: some Scene {
         WindowGroup {
-            // Überprüfen, ob ein Nutzer eingeloggt ist...
             if authViewModel.currentUser != nil {
-                // Falls ja, ab in die HomeView
-                OverView()
-                    .environmentObject(userDatasViewModel)
+                // Lade die Benutzerdaten, bevor zur OverView navigiert wird
+                if userDatasViewModel.isLoadingUserData {
+                    // Ladebildschirm anzeigen
+                    LoadingView()
+                        .environmentObject(userDatasViewModel)
+                        .onAppear {
+                            if let uid = Auth.auth().currentUser?.uid {
+                                userDatasViewModel.loadUserData(for: uid)
+                            }
+                        }
+                } else {
+                    // Falls die Benutzerdaten bereits geladen sind, zeige die OverView
+                    OverView()
+                        .environmentObject(userDatasViewModel)
+                }
             } else {
-                // Falls nein, ab in die LoginView du Schlingel
+                // Falls nicht eingeloggt, zur LoginView
                 LoginView()
                     .environmentObject(authViewModel)
             }
