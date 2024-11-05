@@ -24,64 +24,74 @@ struct EditProfileView: View {
         userDatasViewModel.userData != nil
     }
 
+    @available(iOS 16.0, *)
     var body: some View {
         ZStack {
-            // Hintergrundbild, das den gesamten Bildschirm ausfüllt
             Image("background")
                 .resizable()
                 .scaledToFill()
-                .edgesIgnoringSafeArea(.all) // Hintergrundbild füllt den gesamten Bildschirm aus
+                .edgesIgnoringSafeArea(.all)
 
-            // VStack für die Form-Ansicht, die über dem Hintergrund angezeigt wird
             VStack {
-                // Die Form umschließen und ihr einen transparenten Hintergrund geben
-                Form {
-                    // Profilbild, horizontal zentriert
-                    HStack {
-                        AsyncImage(url: URL(string: userDatasViewModel.userData?.profilePicURL ?? "")) { image in
-                            image
-                                .resizable()
-                                .aspectRatio(contentMode: .fill)
-                                .frame(width: 120, height: 120)
-                                .clipShape(Circle())
-                                .shadow(radius: 10)
-                        } placeholder: {
-                            Image(systemName: "photo.circle.fill")
-                                .resizable()
-                                .frame(width: 120, height: 120)
-                                .foregroundColor(.gray)
-                                .padding(20)
-                                .background(Circle().fill(Color.white).shadow(radius: 10))
-                        }
-                        .onTapGesture {
-                            uploadProfileImage() // Funktion zum Auswählen und Hochladen eines neuen Bildes
-                        }
-                        .frame(maxWidth: .infinity) // Profilbild horizontal zentrieren
+                HStack {
+                    AsyncImage(url: URL(string: userDatasViewModel.userData?.profilePicURL ?? "")) { image in
+                        image
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                            .frame(width: 120, height: 120)
+                            .clipShape(Circle())
+                            .shadow(radius: 10)
+                    } placeholder: {
+                        Image(systemName: "photo.circle.fill")
+                            .resizable()
+                            .frame(width: 120, height: 120)
+                            .foregroundColor(.gray)
+                            .padding(20)
+                            .background(Circle().fill(Color.white).shadow(radius: 10))
                     }
-                    .padding(.bottom, 20)
-
-                    // Benutzerinformationen
+                    .onTapGesture {
+                        uploadProfileImage()
+                    }
+                    .frame(maxWidth: .infinity)
+                }
+                .padding(.top, 20)
+                
+                Form {
+                    Text("Name:")
+                        .font(.headline)
                     TextField("Name", text: $name)
                         .disabled(!canEdit)
-                    
+                        .padding(.bottom, 10)
+
+                    Text("Alter:")
+                        .font(.headline)
                     TextField("Alter", text: $age)
                         .keyboardType(.numberPad)
                         .disabled(!canEdit)
+                        .padding(.bottom, 10)
 
                     if let userBirthday = userDatasViewModel.userData?.birthday {
                         if let birthdayDate = stringToDate(userBirthday) {
                             Text("Geburtsdatum: \(formattedDate(birthdayDate))")
+                                .font(.headline)
                         } else {
                             Text("Ungültiges Geburtsdatum")
+                                .font(.headline)
                         }
                     } else {
                         DatePicker("Geburtsdatum", selection: $birthday, displayedComponents: .date)
                             .disabled(!canEdit)
+                            .padding(.bottom, 10)
                     }
 
+                    Text("Postleitzahl:")
+                        .font(.headline)
                     TextField("Postleitzahl", text: $zipCode)
                         .disabled(!canEdit)
-                        
+                        .padding(.bottom, 10)
+
+                    Text("Geschlecht:")
+                        .font(.headline)
                     Picker("Geschlecht", selection: $gender) {
                         Text("Männlich").tag("Männlich")
                         Text("Weiblich").tag("Weiblich")
@@ -89,7 +99,10 @@ struct EditProfileView: View {
                     }
                     .pickerStyle(SegmentedPickerStyle())
                     .disabled(!canEdit)
+                    .padding(.bottom, 10)
 
+                    Text("Beziehungsstatus:")
+                        .font(.headline)
                     Picker("Beziehungsstatus", selection: $relationshipStatus) {
                         Text("Verheiratet").tag("Verheiratet")
                         Text("Ledig").tag("Ledig")
@@ -97,7 +110,10 @@ struct EditProfileView: View {
                     }
                     .pickerStyle(MenuPickerStyle())
                     .disabled(!canEdit)
+                    .padding(.bottom, 10)
 
+                    Text("Land:")
+                        .font(.headline)
                     Picker("Land", selection: $country) {
                         Text("Deutschland").tag("Deutschland")
                         Text("Österreich").tag("Österreich")
@@ -105,9 +121,13 @@ struct EditProfileView: View {
                     }
                     .pickerStyle(MenuPickerStyle())
                     .disabled(!canEdit)
+                    .padding(.bottom, 10)
 
+                    Text("Wildspace:")
+                        .font(.headline)
                     TextField("Wildspace", text: $wildspace)
                         .disabled(!canEdit)
+                        .padding(.bottom, 10)
 
                     Button(action: {
                         saveProfileData()
@@ -121,14 +141,14 @@ struct EditProfileView: View {
                             .cornerRadius(10)
                             .shadow(radius: 5)
                     }
-                    .disabled(!canEdit) // Button nur aktiv, wenn Felder bearbeitet werden können
+                    .disabled(!canEdit)
                 }
+                .scrollContentBackground(.hidden)
                 .padding(.horizontal, 32)
-                .background(Color.clear) // Transparent für die Form
                 .cornerRadius(20)
                 .shadow(radius: 10)
             }
-            .padding(.horizontal) // Füge etwas horizontale Polsterung hinzu, falls notwendig
+            .padding(.horizontal)
         }
         .onAppear {
             loadUserData()
@@ -149,7 +169,7 @@ struct EditProfileView: View {
     }
 
     func uploadProfileImage() {
-        // Logik für das Hochladen des Profilbilds
+
     }
 
     func formattedDate(_ date: Date) -> String {
@@ -167,7 +187,7 @@ struct EditProfileView: View {
     func saveProfileData() {
         let formatter = DateFormatter()
         formatter.dateStyle = .short
-        let birthdayString = formatter.string(from: birthday) // Konvertiere Date in String für das Speichern
+        let birthdayString = formatter.string(from: birthday)
 
         let newData: [String: Any] = [
             "name": name,
