@@ -20,7 +20,7 @@ struct MainTabView: View {
                     Label("Channels", systemImage: "person.2")
                 }
             
-            ProfileView()
+            EditProfileView()
                 .tabItem {
                     Label("Profil", systemImage: "person")
                 }

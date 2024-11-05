@@ -17,7 +17,7 @@ struct ProfileVisitorView: View {
                     .resizable()
                     .aspectRatio(contentMode: .fill)
                     .clipShape(Circle())
-                    .frame(width: 50, height: 50)
+                    .frame(width: 80, height: 80)
                     .shadow(radius: 5)
             } else {
                 AsyncImage(url: URL(string: visitor.profilePicURL)) { image in
@@ -25,7 +25,7 @@ struct ProfileVisitorView: View {
                         .resizable()
                         .aspectRatio(contentMode: .fill)
                         .clipShape(Circle())
-                        .frame(width: 50, height: 50)
+                        .frame(width: 80, height: 80)
                         .shadow(radius: 5)
                 } placeholder: {
                     Circle()
@@ -42,7 +42,7 @@ struct ProfileVisitorView: View {
                 .multilineTextAlignment(.center)
                 .frame(maxWidth: 50)
         }
-        .padding(.top, 8)
+        .padding(.top, 12)
         .padding(.horizontal, 5)
     }
 }

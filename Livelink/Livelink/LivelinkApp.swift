@@ -35,6 +35,7 @@ struct LivelinkApp: App {
                     OverView()
                         .environmentObject(userDatasViewModel)
                         .environmentObject(channelsViewModel)
+                        .environmentObject(authViewModel)
                 }
             } else {
                 LoginView()
