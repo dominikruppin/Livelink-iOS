@@ -14,12 +14,12 @@ struct MainTabView: View {
                 .tabItem {
                     Label("Home", systemImage: "house")
                 }
-
+            
             ChannelsView()
                 .tabItem {
                     Label("Channels", systemImage: "person.2")
                 }
-
+            
             ProfileView()
                 .tabItem {
                     Label("Profil", systemImage: "person")
@@ -27,6 +27,10 @@ struct MainTabView: View {
         }
         .tint(.white)
         .onAppear {
+            let tabBarAppearance = UITabBarAppearance()
+            tabBarAppearance.configureWithTransparentBackground()
+            UITabBar.appearance().standardAppearance = tabBarAppearance
+            UITabBar.appearance().scrollEdgeAppearance = tabBarAppearance
             UITabBar.appearance().unselectedItemTintColor = UIColor(white: 1.0, alpha: 0.5)
         }
     }

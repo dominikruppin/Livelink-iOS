@@ -17,34 +17,40 @@ struct ChannelsView: View {
                 .scaledToFill()
                 .edgesIgnoringSafeArea(.all)
             
-            ScrollView {
-                VStack(spacing: 20) {
-                    let groupedChannels = Dictionary(grouping: channelsViewModel.channels, by: { $0.category })
-                    
-                    ForEach(groupedChannels.keys.sorted(), id: \.self) { category in
-                        VStack(alignment: .leading) {
-                            Text(category)
-                                .font(.title2)
-                                .fontWeight(.bold)
-                                .padding(.leading)
-
-                            ScrollView(.horizontal, showsIndicators: false) {
-                                HStack(spacing: 10) {
-                                    ForEach(groupedChannels[category] ?? [], id: \.name) { channel in
-                                        ChannelView(channel: channel)
+            VStack {
+                ScrollView {
+                    VStack(spacing: 20) {
+                        let groupedChannels = Dictionary(grouping: channelsViewModel.channels, by: { $0.category })
+                        
+                        ForEach(groupedChannels.keys.sorted(), id: \.self) { category in
+                            VStack(alignment: .leading) {
+                                Text(category)
+                                    .font(.title2)
+                                    .fontWeight(.bold)
+                                    .padding(.horizontal, 32)
+                                
+                                ScrollView(.horizontal, showsIndicators: false) {
+                                    HStack(spacing: 10) {
+                                        ForEach(groupedChannels[category] ?? [], id: \.name) { channel in
+                                            ChannelView(channel: channel)
+                                        }
                                     }
+                                    .padding(.horizontal, 32)
                                 }
-                                .padding(.horizontal)
                             }
+                            .padding(.bottom, 10)
                         }
-                        .padding(.bottom, 20)
                     }
+                    .padding(.top)
                 }
-                .padding()
+                .padding(.horizontal, 32)
+                Spacer().frame(height: 10)
             }
         }
     }
 }
+
+
 
 #Preview {
     ChannelsView()

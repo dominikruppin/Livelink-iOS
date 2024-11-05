@@ -18,5 +18,7 @@ struct OverView: View {
 
 #Preview {
     OverView()
+        .environmentObject(UserDatasViewModel())
+        .environmentObject(ChannelsViewModel())
 }
 
