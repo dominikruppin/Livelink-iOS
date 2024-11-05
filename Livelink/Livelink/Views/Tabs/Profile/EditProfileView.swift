@@ -7,8 +7,6 @@
 
 import SwiftUI
 
-import SwiftUI
-
 struct EditProfileView: View {
     @State private var name: String = ""
     @State private var age: String = ""
@@ -28,100 +26,109 @@ struct EditProfileView: View {
 
     var body: some View {
         ZStack {
+            // Hintergrundbild, das den gesamten Bildschirm ausfüllt
             Image("background")
                 .resizable()
                 .scaledToFill()
-                .edgesIgnoringSafeArea(.all)
+                .edgesIgnoringSafeArea(.all) // Hintergrundbild füllt den gesamten Bildschirm aus
 
-            Form {
-                // Profilbild
-                AsyncImage(url: URL(string: userDatasViewModel.userData?.profilePicURL ?? "")) { image in
-                    image
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                        .frame(width: 120, height: 120)
-                        .clipShape(Circle())
-                        .shadow(radius: 10)
-                } placeholder: {
-                    Image(systemName: "photo.circle.fill")
-                        .resizable()
-                        .frame(width: 120, height: 120)
-                        .foregroundColor(.gray)
-                        .padding(20)
-                        .background(Circle().fill(Color.white).shadow(radius: 10))
-                }
-                .onTapGesture {
-                    uploadProfileImage() // Funktion zum Auswählen und Hochladen eines neuen Bildes
-                }
-
-                // Benutzerinformationen
-                TextField("Name", text: $name)
-                    .disabled(!canEdit)
-                
-                TextField("Alter", text: $age)
-                    .keyboardType(.numberPad)
-                    .disabled(!canEdit)
-
-                if let userBirthday = userDatasViewModel.userData?.birthday {
-                    if let birthdayDate = stringToDate(userBirthday) {
-                        Text("Geburtsdatum: \(formattedDate(birthdayDate))")
-                    } else {
-                        Text("Ungültiges Geburtsdatum")
+            // VStack für die Form-Ansicht, die über dem Hintergrund angezeigt wird
+            VStack {
+                // Die Form umschließen und ihr einen transparenten Hintergrund geben
+                Form {
+                    // Profilbild, horizontal zentriert
+                    HStack {
+                        AsyncImage(url: URL(string: userDatasViewModel.userData?.profilePicURL ?? "")) { image in
+                            image
+                                .resizable()
+                                .aspectRatio(contentMode: .fill)
+                                .frame(width: 120, height: 120)
+                                .clipShape(Circle())
+                                .shadow(radius: 10)
+                        } placeholder: {
+                            Image(systemName: "photo.circle.fill")
+                                .resizable()
+                                .frame(width: 120, height: 120)
+                                .foregroundColor(.gray)
+                                .padding(20)
+                                .background(Circle().fill(Color.white).shadow(radius: 10))
+                        }
+                        .onTapGesture {
+                            uploadProfileImage() // Funktion zum Auswählen und Hochladen eines neuen Bildes
+                        }
+                        .frame(maxWidth: .infinity) // Profilbild horizontal zentrieren
                     }
-                } else {
-                    DatePicker("Geburtsdatum", selection: $birthday, displayedComponents: .date)
+                    .padding(.bottom, 20)
+
+                    // Benutzerinformationen
+                    TextField("Name", text: $name)
                         .disabled(!canEdit)
-                }
-
-                TextField("Postleitzahl", text: $zipCode)
-                    .disabled(!canEdit)
                     
-                Picker("Geschlecht", selection: $gender) {
-                    Text("Männlich").tag("Männlich")
-                    Text("Weiblich").tag("Weiblich")
-                    Text("Divers").tag("Divers")
-                }
-                .pickerStyle(SegmentedPickerStyle())
-                .disabled(!canEdit)
+                    TextField("Alter", text: $age)
+                        .keyboardType(.numberPad)
+                        .disabled(!canEdit)
 
-                // Dropdown für Beziehungsstatus
-                Picker("Beziehungsstatus", selection: $relationshipStatus) {
-                    Text("Verheiratet").tag("Verheiratet")
-                    Text("Ledig").tag("Ledig")
-                    Text("In einer Beziehung").tag("In einer Beziehung")
-                }
-                .pickerStyle(MenuPickerStyle())
-                .disabled(!canEdit)
+                    if let userBirthday = userDatasViewModel.userData?.birthday {
+                        if let birthdayDate = stringToDate(userBirthday) {
+                            Text("Geburtsdatum: \(formattedDate(birthdayDate))")
+                        } else {
+                            Text("Ungültiges Geburtsdatum")
+                        }
+                    } else {
+                        DatePicker("Geburtsdatum", selection: $birthday, displayedComponents: .date)
+                            .disabled(!canEdit)
+                    }
 
-                Picker("Land", selection: $country) {
-                    Text("Deutschland").tag("Deutschland")
-                    Text("Österreich").tag("Österreich")
-                    Text("Schweiz").tag("Schweiz")
-                }
-                .pickerStyle(MenuPickerStyle())
-                .disabled(!canEdit)
-
-                TextField("Wildspace", text: $wildspace)
+                    TextField("Postleitzahl", text: $zipCode)
+                        .disabled(!canEdit)
+                        
+                    Picker("Geschlecht", selection: $gender) {
+                        Text("Männlich").tag("Männlich")
+                        Text("Weiblich").tag("Weiblich")
+                        Text("Divers").tag("Divers")
+                    }
+                    .pickerStyle(SegmentedPickerStyle())
                     .disabled(!canEdit)
 
-                Button(action: {
-                    saveProfileData()
-                }) {
-                    Text("Speichern")
-                        .font(.headline)
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .foregroundColor(.white)
-                        .background(Color.blue)
-                        .cornerRadius(10)
-                        .shadow(radius: 5)
+                    Picker("Beziehungsstatus", selection: $relationshipStatus) {
+                        Text("Verheiratet").tag("Verheiratet")
+                        Text("Ledig").tag("Ledig")
+                        Text("In einer Beziehung").tag("In einer Beziehung")
+                    }
+                    .pickerStyle(MenuPickerStyle())
+                    .disabled(!canEdit)
+
+                    Picker("Land", selection: $country) {
+                        Text("Deutschland").tag("Deutschland")
+                        Text("Österreich").tag("Österreich")
+                        Text("Schweiz").tag("Schweiz")
+                    }
+                    .pickerStyle(MenuPickerStyle())
+                    .disabled(!canEdit)
+
+                    TextField("Wildspace", text: $wildspace)
+                        .disabled(!canEdit)
+
+                    Button(action: {
+                        saveProfileData()
+                    }) {
+                        Text("Speichern")
+                            .font(.headline)
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .foregroundColor(.white)
+                            .background(Color.blue)
+                            .cornerRadius(10)
+                            .shadow(radius: 5)
+                    }
+                    .disabled(!canEdit) // Button nur aktiv, wenn Felder bearbeitet werden können
                 }
-                .disabled(!canEdit) // Button nur aktiv, wenn Felder bearbeitet werden können
+                .padding(.horizontal, 32)
+                .background(Color.clear) // Transparent für die Form
+                .cornerRadius(20)
+                .shadow(radius: 10)
             }
-            .padding(.top, 50)
-            .background(Color.white.opacity(0.7))
-            .cornerRadius(20)
-            .shadow(radius: 10)
+            .padding(.horizontal) // Füge etwas horizontale Polsterung hinzu, falls notwendig
         }
         .onAppear {
             loadUserData()
@@ -173,14 +180,12 @@ struct EditProfileView: View {
             "wildspace": wildspace
         ]
         
-        
-        
         userDatasViewModel.updateUserData(uid: authViewModel.currentUser?.uid ?? "<default value>", newData: newData)
     }
 }
 
 #Preview {
     EditProfileView()
-        .environmentObject(UserDatasViewModel())
         .environmentObject(AuthViewModel())
+        .environmentObject(UserDatasViewModel())
 }
