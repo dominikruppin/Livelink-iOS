@@ -6,6 +6,8 @@
 //
 
 import SwiftUI
+import Firebase
+import FirebaseStorage
 
 struct EditProfileView: View {
     @State private var name: String = ""
@@ -16,7 +18,10 @@ struct EditProfileView: View {
     @State private var country: String = "Deutschland"
     @State private var relationshipStatus: String = ""
     @State private var wildspace: String = ""
-
+    
+    @State private var profileImage: UIImage? // Für das ausgewählte Profilbild
+    @State private var isImagePickerPresented = false // Zustandsvariable für den Picker
+    
     @EnvironmentObject var userDatasViewModel: UserDatasViewModel
     @EnvironmentObject var authViewModel: AuthViewModel
 
@@ -51,7 +56,7 @@ struct EditProfileView: View {
                                 .background(Circle().fill(Color.white).shadow(radius: 10))
                         }
                         .onTapGesture {
-                            uploadProfileImage()
+                            isImagePickerPresented.toggle()
                         }
                         .frame(maxWidth: .infinity)
                     }
@@ -159,6 +164,14 @@ struct EditProfileView: View {
                 }
             }
         }
+        .sheet(isPresented: $isImagePickerPresented) {
+            ImagePicker(selectedImage: $profileImage)
+                .onDisappear {
+                    if let image = profileImage {
+                        userDatasViewModel.uploadProfileImage(image: image)
+                    }
+                }
+        }
     }
 
     private func loadUserData() {
@@ -171,10 +184,6 @@ struct EditProfileView: View {
             relationshipStatus = userData.relationshipStatus
             wildspace = userData.wildspace
         }
-    }
-
-    func uploadProfileImage() {
-        // Profilbild hochladen
     }
 
     func formattedDate(_ date: Date) -> String {
@@ -208,6 +217,55 @@ struct EditProfileView: View {
         userDatasViewModel.updateUserData(uid: authViewModel.currentUser?.uid ?? "<default value>", newData: newData)
     }
 }
+
+// Custom ImagePicker View to select the image
+struct ImagePicker: View {
+    @Binding var selectedImage: UIImage?
+
+    @State private var isImagePickerPresented = false
+
+    var body: some View {
+        ImagePickerController(isPresented: $isImagePickerPresented, selectedImage: $selectedImage)
+    }
+}
+
+struct ImagePickerController: UIViewControllerRepresentable {
+    @Binding var isPresented: Bool
+    @Binding var selectedImage: UIImage?
+
+    class Coordinator: NSObject, UINavigationControllerDelegate, UIImagePickerControllerDelegate {
+        var parent: ImagePickerController
+
+        init(parent: ImagePickerController) {
+            self.parent = parent
+        }
+
+        func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
+            parent.isPresented = false
+        }
+
+        func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
+            if let image = info[.originalImage] as? UIImage {
+                parent.selectedImage = image
+            }
+            parent.isPresented = false
+        }
+    }
+
+    func makeCoordinator() -> Coordinator {
+        return Coordinator(parent: self)
+    }
+
+    func makeUIViewController(context: Context) -> UIImagePickerController {
+        let picker = UIImagePickerController()
+        picker.delegate = context.coordinator
+        picker.sourceType = .photoLibrary
+        return picker
+    }
+
+    func updateUIViewController(_ uiViewController: UIImagePickerController, context: Context) {}
+}
+
 
 #Preview {
     EditProfileView()

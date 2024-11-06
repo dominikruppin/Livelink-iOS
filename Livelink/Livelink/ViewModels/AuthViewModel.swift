@@ -33,7 +33,6 @@ class AuthViewModel: ObservableObject {
             userDataViewModel.userData = nil // UserDaten entfernen
             return
         }
-
         print("aktueller user: \(user)")
         currentUser = user
         userDataViewModel.loadUserData(for: user.uid)

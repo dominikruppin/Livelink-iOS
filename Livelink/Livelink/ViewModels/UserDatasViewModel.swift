@@ -5,8 +5,11 @@
 //  Created by Dominik Ruppin on 01.11.24.
 //
 
+import Firebase
+import FirebaseStorage
 import FirebaseFirestore
 import Combine
+import SwiftUICore
 
 class UserDatasViewModel: ObservableObject {
     private let database = FirebaseManager.shared.database
@@ -64,6 +67,44 @@ class UserDatasViewModel: ObservableObject {
                 print("Fehler beim Aktualisieren der User-Daten: \(error.localizedDescription)")
             }
         }
+    }
+    
+    func uploadProfileImage(image: UIImage) {
+        guard let uid = FirebaseManager.shared.auth.currentUser?.uid else { return }
+        let storageRef = Storage.storage().reference().child("profile_pics/\(uid).jpg")
+        
+        if let imageData = image.jpegData(compressionQuality: 0.75) {
+            storageRef.putData(imageData, metadata: nil) { _, error in
+                if let error = error {
+                    print("Error uploading image: \(error.localizedDescription)")
+                    return
+                }
+
+                storageRef.downloadURL { url, error in
+                    if let error = error {
+                        print("Error getting download URL: \(error.localizedDescription)")
+                        return
+                    }
+
+                    if let url = url {
+                        self.updateUserProfilePicURL(url.absoluteString)
+                    }
+                }
+            }
+        }
+    }
+    
+    func updateUserProfilePicURL(_ url: String) {
+        guard let uid = FirebaseManager.shared.auth.currentUser?.uid else {
+            print("User not authenticated")
+            return
+        }
+
+        let newData: [String: Any] = [
+            "profilePicURL": url
+        ]
+
+        self.updateUserData(uid: uid, newData: newData)
     }
     
     // Prüfen, ob ein Benutzername bereits existiert
