@@ -92,12 +92,6 @@ struct EditProfileView: View {
                         }
                         .listRowInsets(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 0))
 
-                        Section(header: Text("Postleitzahl")) {
-                            TextField("Postleitzahl", text: $zipCode)
-                                .disabled(!canEdit)
-                        }
-                        .listRowInsets(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 0))
-
                         Section(header: Text("Geschlecht")) {
                             Picker("Geschlecht", selection: $gender) {
                                 Text("Männlich").tag("Männlich")
@@ -122,7 +116,7 @@ struct EditProfileView: View {
 
                         Section(header: Text("Land")) {
                             Picker("\(country)", selection: $country) {
-                                Text("Test").tag("Test")
+                                Text("Keine Angabe").tag("Keine Angabe")
                                 Text("Deutschland").tag("Deutschland")
                                 Text("Österreich").tag("Österreich")
                                 Text("Schweiz").tag("Schweiz")
@@ -131,6 +125,14 @@ struct EditProfileView: View {
                             .disabled(!canEdit)
                         }
                         .listRowInsets(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 0))
+                        
+                        if country != "Keine Angabe" {
+                            Section(header: Text("Postleitzahl")) {
+                                TextField("Postleitzahl", text: $zipCode)
+                                    .disabled(!canEdit)
+                            }
+                            .listRowInsets(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 0))
+                        }
 
                         Section(header: Text("Wildspace")) {
                             TextEditor(text: $wildspace)
@@ -179,7 +181,7 @@ struct EditProfileView: View {
             age = userData.age
             birthday = stringToDate(userData.birthday) ?? Date()
             zipCode = userData.zipCode
-            country = userData.country
+            country = userData.country.isEmpty ? "Keine Angabe" : userData.country
             gender = userData.gender
             relationshipStatus = userData.relationshipStatus
             wildspace = userData.wildspace
@@ -202,7 +204,10 @@ struct EditProfileView: View {
         let formatter = DateFormatter()
         formatter.dateStyle = .short
         let birthdayString = formatter.string(from: birthday)
-
+        var newCountry = country
+        if country == "Keine Angabe" {
+            newCountry = ""
+        }
         let newData: [String: Any] = [
             "name": name,
             "age": age,
@@ -210,7 +215,7 @@ struct EditProfileView: View {
             "zipCode": zipCode,
             "gender": gender,
             "relationshipStatus": relationshipStatus,
-            "country": country,
+            "country": newCountry,
             "wildspace": wildspace
         ]
         

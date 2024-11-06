@@ -71,7 +71,8 @@ class UserDatasViewModel: ObservableObject {
     
     func uploadProfileImage(image: UIImage) {
         guard let uid = FirebaseManager.shared.auth.currentUser?.uid else { return }
-        let storageRef = Storage.storage().reference().child("profile_pics/\(uid).jpg")
+        let timestamp = Int(Date().timeIntervalSince1970) // Aktueller Timestamp in Sekunden
+        let storageRef = Storage.storage().reference().child("images/\(uid)/profilepics/\(timestamp).jpg")
         
         if let imageData = image.jpegData(compressionQuality: 0.75) {
             storageRef.putData(imageData, metadata: nil) { _, error in
