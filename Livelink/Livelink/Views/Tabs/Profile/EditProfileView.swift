@@ -13,7 +13,7 @@ struct EditProfileView: View {
     @State private var birthday: Date = Date()
     @State private var zipCode: String = ""
     @State private var gender: String = ""
-    @State private var country: String = ""
+    @State private var country: String = "Deutschland"
     @State private var relationshipStatus: String = ""
     @State private var wildspace: String = ""
 
@@ -26,132 +26,138 @@ struct EditProfileView: View {
 
     @available(iOS 16.0, *)
     var body: some View {
-        ZStack {
-            Image("background")
-                .resizable()
-                .scaledToFill()
-                .edgesIgnoringSafeArea(.all)
+        NavigationView {
+            ZStack {
+                Image("background")
+                    .resizable()
+                    .scaledToFill()
+                    .edgesIgnoringSafeArea(.all)
 
-            VStack {
-                HStack {
-                    AsyncImage(url: URL(string: userDatasViewModel.userData?.profilePicURL ?? "")) { image in
-                        image
-                            .resizable()
-                            .aspectRatio(contentMode: .fill)
-                            .frame(width: 120, height: 120)
-                            .clipShape(Circle())
-                            .shadow(radius: 10)
-                    } placeholder: {
-                        Image(systemName: "photo.circle.fill")
-                            .resizable()
-                            .frame(width: 120, height: 120)
-                            .foregroundColor(.gray)
-                            .padding(20)
-                            .background(Circle().fill(Color.white).shadow(radius: 10))
-                    }
-                    .onTapGesture {
-                        uploadProfileImage()
-                    }
-                    .frame(maxWidth: .infinity)
-                }
-                .padding(.top, 20)
-                
-                Form {
-                    Text("Name:")
-                        .font(.headline)
-                    TextField("Name", text: $name)
-                        .disabled(!canEdit)
-                        .padding(.bottom, 10)
-
-                    Text("Alter:")
-                        .font(.headline)
-                    TextField("Alter", text: $age)
-                        .keyboardType(.numberPad)
-                        .disabled(!canEdit)
-                        .padding(.bottom, 10)
-
-                    if let userBirthday = userDatasViewModel.userData?.birthday {
-                        if let birthdayDate = stringToDate(userBirthday) {
-                            Text("Geburtsdatum: \(formattedDate(birthdayDate))")
-                                .font(.headline)
-                        } else {
-                            Text("Ungültiges Geburtsdatum")
-                                .font(.headline)
+                VStack {
+                    HStack {
+                        AsyncImage(url: URL(string: userDatasViewModel.userData?.profilePicURL ?? "")) { image in
+                            image
+                                .resizable()
+                                .aspectRatio(contentMode: .fill)
+                                .frame(width: 120, height: 120)
+                                .clipShape(Circle())
+                                .shadow(radius: 10)
+                        } placeholder: {
+                            Image(systemName: "photo.circle.fill")
+                                .resizable()
+                                .frame(width: 120, height: 120)
+                                .foregroundColor(.gray)
+                                .padding(20)
+                                .background(Circle().fill(Color.white).shadow(radius: 10))
                         }
-                    } else {
-                        DatePicker("Geburtsdatum", selection: $birthday, displayedComponents: .date)
+                        .onTapGesture {
+                            uploadProfileImage()
+                        }
+                        .frame(maxWidth: .infinity)
+                    }
+                    .padding(.top, 20)
+
+                    Form {
+                        Section(header: Text("Name")) {
+                            TextField("Name", text: $name)
+                                .disabled(!canEdit)
+                        }
+                        .listRowInsets(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 0))
+
+                        Section(header: Text("Alter")) {
+                            TextField("Alter", text: $age)
+                                .keyboardType(.numberPad)
+                                .disabled(!canEdit)
+                        }
+                        .listRowInsets(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 0))
+
+                        Section(header: Text("Geburtsdatum")) {
+                            if let userBirthday = userDatasViewModel.userData?.birthday {
+                                if let birthdayDate = stringToDate(userBirthday) {
+                                    Text("\(formattedDate(birthdayDate))")
+                                        .font(.headline)
+                                } else {
+                                    Text("Ungültiges Geburtsdatum")
+                                        .font(.headline)
+                                }
+                            } else {
+                                DatePicker("Geburtsdatum", selection: $birthday, displayedComponents: .date)
+                                    .disabled(!canEdit)
+                            }
+                        }
+                        .listRowInsets(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 0))
+
+                        Section(header: Text("Postleitzahl")) {
+                            TextField("Postleitzahl", text: $zipCode)
+                                .disabled(!canEdit)
+                        }
+                        .listRowInsets(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 0))
+
+                        Section(header: Text("Geschlecht")) {
+                            Picker("Geschlecht", selection: $gender) {
+                                Text("Männlich").tag("Männlich")
+                                Text("Weiblich").tag("Weiblich")
+                                Text("Divers").tag("Divers")
+                            }
+                            .pickerStyle(SegmentedPickerStyle())
                             .disabled(!canEdit)
-                            .padding(.bottom, 10)
+                        }
+                        .listRowInsets(EdgeInsets(top: 0, leading: 4, bottom: 0, trailing: 4))
+
+                        Section(header: Text("Beziehungsstatus")) {
+                            Picker("\(relationshipStatus)", selection: $relationshipStatus) {
+                                Text("Verheiratet").tag("Verheiratet")
+                                Text("Ledig").tag("Ledig")
+                                Text("In einer Beziehung").tag("In einer Beziehung")
+                            }
+                            .pickerStyle(DefaultPickerStyle())
+                            .disabled(!canEdit)
+                        }
+                        .listRowInsets(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 0))
+
+                        Section(header: Text("Land")) {
+                            Picker("\(country)", selection: $country) {
+                                Text("Test").tag("Test")
+                                Text("Deutschland").tag("Deutschland")
+                                Text("Österreich").tag("Österreich")
+                                Text("Schweiz").tag("Schweiz")
+                            }
+                            .pickerStyle(.automatic)
+                            .disabled(!canEdit)
+                        }
+                        .listRowInsets(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 0))
+
+                        Section(header: Text("Wildspace")) {
+                            TextEditor(text: $wildspace)
+                                .frame(height: 150)
+                                .padding(.bottom, 10)
+                                .disabled(!canEdit)
+                                .border(Color.gray, width: 1)
+                        }
+                        .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
                     }
-
-                    Text("Postleitzahl:")
-                        .font(.headline)
-                    TextField("Postleitzahl", text: $zipCode)
-                        .disabled(!canEdit)
-                        .padding(.bottom, 10)
-
-                    Text("Geschlecht:")
-                        .font(.headline)
-                    Picker("Geschlecht", selection: $gender) {
-                        Text("Männlich").tag("Männlich")
-                        Text("Weiblich").tag("Weiblich")
-                        Text("Divers").tag("Divers")
-                    }
-                    .pickerStyle(SegmentedPickerStyle())
-                    .disabled(!canEdit)
-                    .padding(.bottom, 10)
-
-                    Text("Beziehungsstatus:")
-                        .font(.headline)
-                    Picker("Beziehungsstatus", selection: $relationshipStatus) {
-                        Text("Verheiratet").tag("Verheiratet")
-                        Text("Ledig").tag("Ledig")
-                        Text("In einer Beziehung").tag("In einer Beziehung")
-                    }
-                    .pickerStyle(MenuPickerStyle())
-                    .disabled(!canEdit)
-                    .padding(.bottom, 10)
-
-                    Text("Land:")
-                        .font(.headline)
-                    Picker("Land", selection: $country) {
-                        Text("Deutschland").tag("Deutschland")
-                        Text("Österreich").tag("Österreich")
-                        Text("Schweiz").tag("Schweiz")
-                    }
-                    .pickerStyle(MenuPickerStyle())
-                    .disabled(!canEdit)
-                    .padding(.bottom, 10)
-
-                    Text("Wildspace:")
-                        .font(.headline)
-                    TextField("Wildspace", text: $wildspace)
-                        .disabled(!canEdit)
-                        .padding(.bottom, 10)
-
+                    .scrollContentBackground(.hidden)
+                    .padding(.horizontal, 32)
+                    .cornerRadius(20)
+                    .shadow(radius: 10)
+                    Spacer().frame(height: 10)
+                }
+                .padding(.horizontal)
+            }
+            .onAppear {
+                loadUserData()
+            }
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
                     Button(action: {
                         saveProfileData()
                     }) {
                         Text("Speichern")
                             .font(.headline)
-                            .frame(maxWidth: .infinity)
-                            .padding()
-                            .foregroundColor(.white)
-                            .background(Color.blue)
-                            .cornerRadius(10)
-                            .shadow(radius: 5)
                     }
                     .disabled(!canEdit)
                 }
-                .scrollContentBackground(.hidden)
-                .padding(.horizontal, 32)
-                .cornerRadius(20)
-                .shadow(radius: 10)
             }
-            .padding(.horizontal)
-        }
-        .onAppear {
-            loadUserData()
         }
     }
 
@@ -162,14 +168,13 @@ struct EditProfileView: View {
             birthday = stringToDate(userData.birthday) ?? Date()
             zipCode = userData.zipCode
             gender = userData.gender
-            country = userData.country
             relationshipStatus = userData.relationshipStatus
             wildspace = userData.wildspace
         }
     }
 
     func uploadProfileImage() {
-
+        // Profilbild hochladen
     }
 
     func formattedDate(_ date: Date) -> String {
