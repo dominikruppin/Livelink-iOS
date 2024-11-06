@@ -19,8 +19,8 @@ struct EditProfileView: View {
     @State private var relationshipStatus: String = ""
     @State private var wildspace: String = ""
     
-    @State private var profileImage: UIImage? // Für das ausgewählte Profilbild
-    @State private var isImagePickerPresented = false // Zustandsvariable für den Picker
+    @State private var profileImage: UIImage?
+    @State private var isImagePickerPresented = false
     
     @EnvironmentObject var userDatasViewModel: UserDatasViewModel
     @EnvironmentObject var authViewModel: AuthViewModel
@@ -164,13 +164,12 @@ struct EditProfileView: View {
                 }
             }
         }
-        .sheet(isPresented: $isImagePickerPresented) {
-            ImagePicker(selectedImage: $profileImage)
-                .onDisappear {
-                    if let image = profileImage {
-                        userDatasViewModel.uploadProfileImage(image: image)
-                    }
-                }
+        .sheet(isPresented: $isImagePickerPresented, onDismiss: {
+            if let image = profileImage {
+                userDatasViewModel.uploadProfileImage(image: image)
+            }
+        }) {
+            ImagePicker(selectedImage: $profileImage, isPresented: $isImagePickerPresented)
         }
     }
 
@@ -218,14 +217,14 @@ struct EditProfileView: View {
     }
 }
 
-// Custom ImagePicker View to select the image
 struct ImagePicker: View {
     @Binding var selectedImage: UIImage?
+    @Binding var isPresented: Bool
 
     @State private var isImagePickerPresented = false
 
     var body: some View {
-        ImagePickerController(isPresented: $isImagePickerPresented, selectedImage: $selectedImage)
+        ImagePickerController(isPresented: $isPresented, selectedImage: $selectedImage)
     }
 }
 
