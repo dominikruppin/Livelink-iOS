@@ -15,7 +15,7 @@ struct EditProfileView: View {
     @State private var birthday: Date = Date()
     @State private var zipCode: String = ""
     @State private var gender: String = ""
-    @State private var country: String = "Deutschland"
+    @State private var country: String = ""
     @State private var relationshipStatus: String = ""
     @State private var wildspace: String = ""
     
@@ -179,6 +179,7 @@ struct EditProfileView: View {
             age = userData.age
             birthday = stringToDate(userData.birthday) ?? Date()
             zipCode = userData.zipCode
+            country = userData.country
             gender = userData.gender
             relationshipStatus = userData.relationshipStatus
             wildspace = userData.wildspace
