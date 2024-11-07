@@ -106,14 +106,23 @@ struct EditProfileView: View {
 
                         Section(header: Text("Beziehungsstatus")) {
                             Picker("\(relationshipStatus)", selection: $relationshipStatus) {
+                                Text("Keine Angabe").tag("Keine Angabe")
+                                Text("Single").tag("Single")
+                                Text("Auf Wolke7").tag("Auf Wolke7")
+                                Text("Vergeben").tag("Vergeben")
+                                Text("Glücklich Vergeben").tag("Glücklich Vergeben")
                                 Text("Verheiratet").tag("Verheiratet")
-                                Text("Ledig").tag("Ledig")
-                                Text("In einer Beziehung").tag("In einer Beziehung")
+                                Text("Geschieden").tag("Geschieden")
+                                Text("Verwitwet").tag("Verwitwet")
+                                Text("On Off").tag("On Off")
+                                Text("Beziehungsunfähig").tag("Beziehungsunfähig")
+                                Text("Kann man das Essen?").tag("Kann man das Essen?")
                             }
                             .pickerStyle(DefaultPickerStyle())
                             .disabled(!canEdit)
                         }
                         .listRowInsets(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 0))
+
 
                         Section(header: Text("Land")) {
                             Picker("\(country)", selection: $country) {
