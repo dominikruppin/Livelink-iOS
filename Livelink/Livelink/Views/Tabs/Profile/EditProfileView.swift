@@ -18,10 +18,11 @@ struct EditProfileView: View {
     @State private var country: String = ""
     @State private var relationshipStatus: String = ""
     @State private var wildspace: String = ""
-    
+    @State private var state: String = ""
+    @State private var city: String = ""
     @State private var profileImage: UIImage?
     @State private var isImagePickerPresented = false
-    
+    @StateObject var zipCodeViewModel = ZipCodeViewModel()
     @EnvironmentObject var userDatasViewModel: UserDatasViewModel
     @EnvironmentObject var authViewModel: AuthViewModel
 
@@ -185,6 +186,8 @@ struct EditProfileView: View {
             gender = userData.gender
             relationshipStatus = userData.relationshipStatus
             wildspace = userData.wildspace
+            state = userData.state
+            city = userData.city
         }
     }
 
@@ -208,18 +211,47 @@ struct EditProfileView: View {
         if country == "Keine Angabe" {
             newCountry = ""
         }
-        let newData: [String: Any] = [
-            "name": name,
-            "age": age,
-            "birthday": birthdayString,
-            "zipCode": zipCode,
-            "gender": gender,
-            "relationshipStatus": relationshipStatus,
-            "country": newCountry,
-            "wildspace": wildspace
-        ]
         
-        userDatasViewModel.updateUserData(uid: authViewModel.currentUser?.uid ?? "<default value>", newData: newData)
+        if !zipCode.isEmpty, country != "Keine Angabe" {
+            zipCodeViewModel.fetchZipInfos(country: country, postalCode: zipCode) { (state: String?, city: String?, error: String?) in
+                if let error = error {
+                    print("Fehler beim Laden der ZipCode-Infos: \(error)")
+                    return
+                }
+
+                self.state = state ?? ""
+                self.city = city ?? ""
+                let newData: [String: Any] = [
+                    "name": self.name,
+                    "age": self.age,
+                    "birthday": birthdayString,
+                    "zipCode": self.zipCode,
+                    "gender": self.gender,
+                    "relationshipStatus": self.relationshipStatus,
+                    "country": newCountry,
+                    "wildspace": self.wildspace,
+                    "state": state ?? "",
+                    "city": city ?? ""
+                ]
+
+                self.userDatasViewModel.updateUserData(uid: self.authViewModel.currentUser?.uid ?? "<default value>", newData: newData)
+            }
+        } else {
+            let newData: [String: Any] = [
+                "name": name,
+                "age": age,
+                "birthday": birthdayString,
+                "zipCode": zipCode,
+                "gender": gender,
+                "relationshipStatus": relationshipStatus,
+                "country": newCountry,
+                "wildspace": wildspace,
+                "state": "",
+                "city": ""
+            ]
+            
+            userDatasViewModel.updateUserData(uid: authViewModel.currentUser?.uid ?? "<default value>", newData: newData)
+        }
     }
 }
 

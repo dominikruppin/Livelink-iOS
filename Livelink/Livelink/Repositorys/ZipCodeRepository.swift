@@ -7,39 +7,52 @@
 
 import Foundation
 
-// Repository für den Zugriff auf die OpenPLZ API
 class ZipCodeRepository: ZipCodeApiService {
-    private let baseUrl = URL(string: "https://openplzapi.org/")! // Basis-URL der OpenPLZ API
-
-    // Holt die PLZ-Infos für ein bestimmtes Land und eine PLZ
+    private let baseUrl = URL(string: "https://openplzapi.org/")!
+    
     func getZipInfos(country: String, postalCode: String, completion: @escaping (Result<[ZipCodeInfos], Error>) -> Void) {
-        let url = baseUrl.appendingPathComponent("\(country)/Localities") // Endpunkt zusammensetzen
+        let countryCode: String
+        switch country.lowercased() {
+        case "deutschland":
+            countryCode = "de"
+        case "schweiz":
+            countryCode = "ch"
+        case "österreich":
+            countryCode = "at"
+        default:
+            completion(.failure(NSError(domain: "UnsupportedCountry", code: -1, userInfo: [NSLocalizedDescriptionKey: "Country not supported"])))
+            return
+        }
+        let url = baseUrl.appendingPathComponent("\(countryCode)/Localities")
         var urlComponents = URLComponents(url: url, resolvingAgainstBaseURL: false)!
-        urlComponents.queryItems = [URLQueryItem(name: "postalCode", value: postalCode)] // Parameter hinzufügen
+        urlComponents.queryItems = [URLQueryItem(name: "postalCode", value: postalCode)]
         
         guard let finalUrl = urlComponents.url else {
-            completion(.failure(NSError(domain: "URL Error", code: -1, userInfo: nil))) // Fehler bei der URL-Erstellung zurückgeben
+            completion(.failure(NSError(domain: "URL Error", code: -1, userInfo: nil)))
             return
         }
         
         let task = URLSession.shared.dataTask(with: finalUrl) { data, response, error in
             if let error = error {
-                completion(.failure(error)) // Fehler zurückgeben
+                completion(.failure(error))
                 return
             }
             
             guard let data = data else {
-                completion(.failure(NSError(domain: "DataError", code: -1, userInfo: nil))) // Fehler, wenn keine Daten empfangen werden
+                completion(.failure(NSError(domain: "DataError", code: -1, userInfo: nil)))
                 return
             }
             
+            let jsonString = String(data: data, encoding: .utf8)
+            print("API Response: \(jsonString ?? "")")
+            
             do {
-                let zipCodeInfos = try JSONDecoder().decode([ZipCodeInfos].self, from: data) // Antwort dekodieren
+                let zipCodeInfos = try JSONDecoder().decode([ZipCodeInfos].self, from: data)
                 completion(.success(zipCodeInfos)) // Erfolgreiche Antwort zurückgeben
             } catch {
                 completion(.failure(error)) // Fehler bei der Dekodierung zurückgeben
             }
         }
-        task.resume() // Anfrage ausführen
+        task.resume()
     }
 }

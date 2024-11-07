@@ -10,8 +10,9 @@
 // postalCode natürlich die Postleitzahl (welche man sowieso übergeben hat)
 // Sowie das Bundesland als eigenes Objekt
 struct ZipCodeInfos: Codable {
-    var name: String
     var postalCode: String
-    var federalState: FederalState?
+    var name: String
+    var federalState: FederalState
+    var municipality: Municipality
 }
 

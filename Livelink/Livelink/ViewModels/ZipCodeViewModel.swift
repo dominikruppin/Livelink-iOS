@@ -12,25 +12,33 @@ import Combine
 class ZipCodeViewModel: ObservableObject {
     private let zipCodeRepository: ZipCodeRepository
     
-    // Published Properties für die Beobachtung durch die View
     @Published var zipCodeInfos: [ZipCodeInfos] = [] // Liste der PLZ-Infos
     @Published var errorMessage: String?  // Fehlernachricht bei API-Fehlern
 
-    // Initialisierung des ViewModels mit dem Repository
     init(zipCodeRepository: ZipCodeRepository = ZipCodeRepository()) {
         self.zipCodeRepository = zipCodeRepository
     }
 
-    // Funktion zum Abrufen der PLZ-Infos
-    func fetchZipInfos(country: String, postalCode: String) {
+    func fetchZipInfos(country: String, postalCode: String, completion: @escaping (String?, String?, String?) -> Void) {
         zipCodeRepository.getZipInfos(country: country, postalCode: postalCode) { [weak self] result in
             DispatchQueue.main.async {
-                // Verarbeitung des API-Antwort- oder Fehlerergebnisses
                 switch result {
                 case .success(let infos):
-                    self?.zipCodeInfos = infos
+                    guard let info = infos.first else {
+                        self?.errorMessage = "Keine PLZ-Informationen gefunden."
+                        completion(nil, nil, nil)
+                        return
+                    }
+                    
+                    // Extrahiere Bundesland und Ort
+                    let state = info.federalState.name // Bundesland
+                    let city = info.name // Stadtname
+                    
+                    completion(state, city, nil)
+                    
                 case .failure(let error):
                     self?.errorMessage = error.localizedDescription
+                    completion(nil, nil, error.localizedDescription)
                 }
             }
         }
