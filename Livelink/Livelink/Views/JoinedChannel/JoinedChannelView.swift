@@ -9,6 +9,7 @@ import SwiftUI
 
 struct JoinedChannelView: View {
     @EnvironmentObject var channelsViewModel: ChannelsViewModel
+    @EnvironmentObject var userDatasViewModel: UserDatasViewModel
     @Environment(\.dismiss) private var dismiss
     @State private var messageContent = ""
     var channel: Channel
@@ -71,7 +72,7 @@ struct JoinedChannelView: View {
             }
         }
         .onDisappear {
-            channelsViewModel.onChannelLeave(username: "currentUserUsername")
+            channelsViewModel.onChannelLeave(username: userDatasViewModel.userData!.username)
         }
     }
     
@@ -81,7 +82,7 @@ struct JoinedChannelView: View {
     }
     
     private func sendMessage() {
-        let message = Message(senderId: "currentUserUsername", content: messageContent)
+        let message = Message(senderId: userDatasViewModel.userData!.username, content: messageContent)
         channelsViewModel.sendMessage(message: message)
         messageContent = ""
     }
