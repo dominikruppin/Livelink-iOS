@@ -40,7 +40,7 @@ class ChannelsViewModel: ObservableObject {
         }
     }
     
-    func joinChannel(channel: Channel, username: String) async {
+    func joinChannel(channel: Channel) async {
         DispatchQueue.main.async {
             self.messages = []
             self.currentChannel = ChannelJoin(channelID: channel.name, backgroundURL: channel.backgroundUrl)

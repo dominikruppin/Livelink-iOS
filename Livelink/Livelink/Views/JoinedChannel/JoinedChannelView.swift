@@ -34,6 +34,7 @@ struct JoinedChannelView: View {
                             ForEach(channelsViewModel.messages, id: \.timestamp) { message in
                                 MessageView(message: message)
                                     .padding(.vertical, 4)
+                                    .frame(maxWidth: .infinity, alignment: .leading)
                                     .id(message.timestamp)
                             }
                         }
@@ -79,7 +80,7 @@ struct JoinedChannelView: View {
     }
     
     private func joinChannelAndFetchMessages() async {
-        await channelsViewModel.joinChannel(channel: channel, username: userDatasViewModel.userData!.username)
+        await channelsViewModel.joinChannel(channel: channel)
         channelsViewModel.fetchMessages()
     }
     
