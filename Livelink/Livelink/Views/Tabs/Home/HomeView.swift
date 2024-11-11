@@ -19,7 +19,7 @@ struct HomeView: View {
                 .scaledToFill()
                 .edgesIgnoringSafeArea(.all)
             
-            VStack(spacing: 10) {
+            VStack() {
                 // Begrüßung
                 Text("\(greetingMessage()), \(userDatasViewModel.userData?.username ?? "Gast")!")
                     .font(.largeTitle)
@@ -39,21 +39,26 @@ struct HomeView: View {
                 // Dropdown für Suchergebnisse
                 if !searchQuery.isEmpty && !userDatasViewModel.searchResults.isEmpty {
                     VStack(spacing: 0) {
-                        ForEach(userDatasViewModel.searchResults, id: \.username) { user in
-                            Text(user.username)
-                                .padding()
-                                .background(Color.white.opacity(0.9))
-                                .cornerRadius(8)
-                                .padding(.horizontal, 16)
-                                .foregroundColor(.black)
-                                .onTapGesture {
-                                    searchQuery = user.username
+                        ScrollView {
+                            VStack(spacing: 0) {
+                                ForEach(userDatasViewModel.searchResults, id: \.username) { user in
+                                    Text(user.username)
+                                        .padding(.bottom)
+                                        .cornerRadius(8)
+                                        .padding(.horizontal, 16)
+                                        .foregroundColor(.black)
+                                        .onTapGesture {
+                                            userDatasViewModel.loadUserDataByUsername(username: user.username)
+                                            userDatasViewModel.showProfilePopup = true
+                                        }
                                 }
+                            }
                         }
+                        .background(Color.gray.opacity(0.1))
+                        .cornerRadius(10)
+                        .padding(.horizontal, 16)
+                        .frame(maxHeight: 300)
                     }
-                    .background(Color.white)
-                    .cornerRadius(10)
-                    .padding(.horizontal, 16)
                 }
                 
                 // Profilbesucher anzeigen
@@ -70,6 +75,7 @@ struct HomeView: View {
                                 ProfileVisitorView(visitor: visitor)
                                     .onTapGesture {
                                         userDatasViewModel.loadUserDataByUsername(username: visitor.username)
+                                        userDatasViewModel.showProfilePopup = true  // Profil-Popup anzeigen
                                     }
                             }
                             Spacer(minLength: 16)
@@ -78,7 +84,7 @@ struct HomeView: View {
                     }
                 }
                 
-                // Profilbesucher anzeigen
+                // Letzte Channel anzeigen
                 if let userData = userDatasViewModel.userData, !userData.lastChannels.isEmpty {
                     Text("Letzte Channel:")
                         .font(.headline)
@@ -132,6 +138,7 @@ struct HomeView: View {
         }
     }
 }
+
 
 #Preview {
     HomeView()
