@@ -17,6 +17,7 @@ struct ProfileViewPopup: View {
                 VStack(spacing: 20) {
                     Spacer().frame(height: 20)
                     
+                    // Profilbild
                     AsyncImage(url: URL(string: profile.profilePicURL)) { image in
                         image
                             .resizable()
@@ -35,16 +36,29 @@ struct ProfileViewPopup: View {
                     
                     Spacer().frame(height: 16)
                     
+                    // Username
                     Text(profile.username)
                         .font(.title)
                         .fontWeight(.bold)
                         .padding(.top, 8)
                     
+                    // Status
                     Text(getStatusText(for: profile.status))
                         .font(.subheadline)
                         .foregroundColor(.gray)
                         .padding(.top, 4)
                     
+                    // Hinweis, falls keine Profilangaben vorhanden sind
+                    if isProfileEmpty() {
+                        Text("Leider wissen wir noch nichts über \(profile.username).")
+                            .font(.body)
+                            .foregroundColor(.gray)
+                            .padding(.top, 8)
+                            .padding(.horizontal)
+                            .multilineTextAlignment(.center)
+                    }
+                    
+                    // Profilinformationen anzeigen
                     Group {
                         if !profile.name.isEmpty {
                             ProfileInfoView(label: "Name", value: profile.name)
@@ -124,8 +138,20 @@ struct ProfileViewPopup: View {
             return "Mitglied"
         }
     }
+    
+    // Funktion, die prüft, ob die meisten Profilfelder leer sind
+    private func isProfileEmpty() -> Bool {
+        return profile.name.isEmpty &&
+               profile.age.isEmpty &&
+               profile.birthday.isEmpty &&
+               profile.gender.isEmpty &&
+               profile.relationshipStatus.isEmpty &&
+               profile.country.isEmpty &&
+               profile.city.isEmpty &&
+               profile.state.isEmpty &&
+               profile.wildspace.isEmpty
+    }
 }
-
 
 struct ProfileInfoView: View {
     var label: String
