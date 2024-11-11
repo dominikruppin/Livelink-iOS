@@ -110,7 +110,14 @@ struct HomeView: View {
         // Sheet für das Profil-Popup
         .sheet(isPresented: $userDatasViewModel.showProfilePopup) {
             if let profileData = userDatasViewModel.profileUserData {
-                ProfileViewPopup(profile: profileData)  // Zeige das Profil im Sheet
+                ProfileViewPopup(profile: profileData)
+                    .background(
+                        Image("background")
+                            .resizable()
+                            .scaledToFill()
+                            .edgesIgnoringSafeArea(.all)
+                    )
+                    .edgesIgnoringSafeArea(.all)
             }
         }
     }
