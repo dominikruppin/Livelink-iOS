@@ -25,3 +25,7 @@ struct MessageView: View {
         .shadow(radius: 5)
     }
 }
+<<<<<<< HEAD
+=======
+
+>>>>>>> 66f9bd4ea541200eade900e472fd456aa1bd8538

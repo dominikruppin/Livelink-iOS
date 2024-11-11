@@ -85,6 +85,7 @@ struct HomeView: View {
                         }
                     }
                     
+<<<<<<< HEAD
                     // Letzte Channel anzeigen
                     if let userData = userDatasViewModel.userData, !userData.lastChannels.isEmpty {
                         Text("Letzte Channel:")
@@ -102,12 +103,38 @@ struct HomeView: View {
                                         }
                                 }
                                 Spacer(minLength: 16)
+=======
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 10) {
+                            Spacer(minLength: 16)
+                            ForEach(userData.recentProfileVisitors, id: \.username) { visitor in
+                                ProfileVisitorView(visitor: visitor)
+                                    .onTapGesture {
+                                        userDatasViewModel.loadUserDataByUsername(username: visitor.username)
+                                        userDatasViewModel.showProfilePopup = true
+                                    }
+>>>>>>> 66f9bd4ea541200eade900e472fd456aa1bd8538
                             }
                             .padding(.horizontal)
                         }
                     }
                     
+<<<<<<< HEAD
                     Spacer()
+=======
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 10) {
+                            Spacer(minLength: 16)
+                            ForEach(userData.lastChannels, id: \.name) { channel in
+                                NavigationLink(destination: JoinedChannelView(channel: channel)) {
+                                    ChannelView(channel: channel)
+                                }
+                            }
+                            Spacer(minLength: 16)
+                        }
+                        .padding(.horizontal)
+                    }
+>>>>>>> 66f9bd4ea541200eade900e472fd456aa1bd8538
                 }
                 .padding(.top, 40)
                 .padding(.horizontal)
