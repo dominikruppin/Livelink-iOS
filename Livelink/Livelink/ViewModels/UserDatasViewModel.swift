@@ -59,6 +59,30 @@ class UserDatasViewModel: ObservableObject {
         }
     }
     
+    // Funktion zum laden der Profiluserdaten anderer Nutzer
+    func loadUserDataByUsername(username: String) {
+        let lowercaseUsername = username.lowercased()
+        
+        usersCollectionReference
+            .whereField("usernameLowercase", isEqualTo: lowercaseUsername)
+            .getDocuments { [weak self] snapshot, error in
+                if let error = error {
+                    print("Fehler beim Laden der User-Daten für den Benutzernamen \(username): \(error.localizedDescription)")
+                    self?.profileUserData = nil
+                    return
+                }
+                
+                guard let document = snapshot?.documents.first,
+                      let data = try? document.data(as: UserData.self) else {
+                    print("Benutzer mit dem Namen \(username) nicht gefunden oder keine Daten.")
+                    self?.profileUserData = nil
+                    return
+                }
+                
+                self?.profileUserData = data
+                print("Benutzerdaten für \(username) erfolgreich geladen: \(data)")
+            }
+    }
     
     // User-Daten aktualisieren
     func updateUserData(uid: String, newData: [String: Any]) {

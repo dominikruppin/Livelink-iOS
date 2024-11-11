@@ -11,14 +11,14 @@ import SwiftUIX
 struct HomeView: View {
     @EnvironmentObject var userDatasViewModel: UserDatasViewModel
     @State private var searchQuery: String = ""
-
+    
     var body: some View {
         ZStack {
             Image("background")
                 .resizable()
                 .scaledToFill()
                 .edgesIgnoringSafeArea(.all)
-
+            
             VStack(spacing: 10) {
                 // Begrüßung
                 Text("\(greetingMessage()), \(userDatasViewModel.userData?.username ?? "Gast")!")
@@ -28,14 +28,14 @@ struct HomeView: View {
                     .padding(16)
                     .cornerRadius(10)
                     .shadow(radius: 10)
-
+                
                 // SearchBar
                 SearchBar("Nutzer suchen...", text: $searchQuery)
                     .padding(.horizontal, 32)
                     .frame(maxWidth: .infinity)
                     .cornerRadius(10)
                     .shadow(radius: 5)
-
+                
                 // Dropdown für Suchergebnisse
                 if !searchQuery.isEmpty && !userDatasViewModel.searchResults.isEmpty {
                     VStack(spacing: 0) {
@@ -55,19 +55,22 @@ struct HomeView: View {
                     .cornerRadius(10)
                     .padding(.horizontal, 16)
                 }
-
+                
                 // Profilbesucher anzeigen
                 if let userData = userDatasViewModel.userData, !userData.recentProfileVisitors.isEmpty {
                     Text("Profilbesucher:")
                         .font(.headline)
                         .foregroundColor(.white)
                         .padding(.top)
-
+                    
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: 10) {
                             Spacer(minLength: 16)
                             ForEach(userData.recentProfileVisitors, id: \.username) { visitor in
                                 ProfileVisitorView(visitor: visitor)
+                                    .onTapGesture {
+                                        userDatasViewModel.loadUserDataByUsername(username: visitor.username)
+                                    }
                             }
                             Spacer(minLength: 16)
                         }
@@ -81,7 +84,7 @@ struct HomeView: View {
                         .font(.headline)
                         .foregroundColor(.white)
                         .padding(.top)
-
+                    
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: 10) {
                             Spacer(minLength: 16)
@@ -93,7 +96,7 @@ struct HomeView: View {
                         .padding(.horizontal)
                     }
                 }
-
+                
                 Spacer()
             }
             .padding(.top, 40)
@@ -104,7 +107,7 @@ struct HomeView: View {
             userDatasViewModel.searchUsers(query: newValue)
         }
     }
-
+    
     private func greetingMessage() -> String {
         let hour = Calendar.current.component(.hour, from: Date())
         switch hour {
