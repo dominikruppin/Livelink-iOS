@@ -34,7 +34,6 @@ struct JoinedChannelView: View {
                             ForEach(channelsViewModel.messages, id: \.timestamp) { message in
                                 MessageView(message: message)
                                     .padding(.vertical, 4)
-                                    .frame(maxWidth: .infinity, alignment: .leading)
                                     .id(message.timestamp)
                             }
                         }
@@ -76,6 +75,13 @@ struct JoinedChannelView: View {
         }
         .onDisappear {
             channelsViewModel.onChannelLeave(username: userDatasViewModel.userData!.username)
+        }
+        .toolbar {
+            ToolbarItem(placement: .principal) {
+                Text("Channel: " + channel.name)
+                    .foregroundColor(.white)
+                    .font(.headline)
+            }
         }
     }
     

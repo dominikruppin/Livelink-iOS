@@ -13,10 +13,8 @@ struct ProfileViewPopup: View {
     
     var body: some View {
         GeometryReader { geometry in
-            ScrollView {
-                VStack(spacing: 20) {
-                    Spacer().frame(height: 20)
-                    
+            VStack(spacing: 20) {
+                VStack {
                     // Profilbild
                     AsyncImage(url: URL(string: profile.profilePicURL)) { image in
                         image
@@ -34,8 +32,6 @@ struct ProfileViewPopup: View {
                             .background(Circle().fill(Color.white).shadow(radius: 10))
                     }
                     
-                    Spacer().frame(height: 16)
-                    
                     // Username
                     Text(profile.username)
                         .font(.title)
@@ -47,83 +43,87 @@ struct ProfileViewPopup: View {
                         .font(.subheadline)
                         .foregroundColor(.gray)
                         .padding(.top, 4)
-                    
-                    // Hinweis, falls keine Profilangaben vorhanden sind
-                    if isProfileEmpty() {
-                        Text("Leider wissen wir noch nichts über \(profile.username).")
-                            .font(.body)
-                            .foregroundColor(.gray)
-                            .padding(.top, 8)
-                            .padding(.horizontal)
-                            .multilineTextAlignment(.center)
-                    }
-                    
-                    // Profilinformationen anzeigen
-                    Group {
-                        if !profile.name.isEmpty {
-                            ProfileInfoView(label: "Name", value: profile.name)
+                }
+                .padding(.top, 20)
+                
+                ScrollView {
+                    VStack(spacing: 20) {
+                        if isProfileEmpty() {
+                            Text("Leider wissen wir noch nichts über \(profile.username).")
+                                .font(.body)
+                                .foregroundColor(.gray)
+                                .padding(.top, 8)
+                                .padding(.horizontal)
+                                .multilineTextAlignment(.center)
                         }
                         
-                        if !profile.age.isEmpty {
-                            ProfileInfoView(label: "Alter", value: profile.age)
-                        }
-                        
-                        if !profile.birthday.isEmpty {
-                            ProfileInfoView(label: "Geburtstag", value: profile.birthday)
-                        }
-                        
-                        if !profile.gender.isEmpty {
-                            ProfileInfoView(label: "Geschlecht", value: profile.gender)
-                        }
-                        
-                        if !profile.relationshipStatus.isEmpty {
-                            ProfileInfoView(label: "Beziehungsstatus", value: profile.relationshipStatus)
-                        }
-                        
-                        if !profile.country.isEmpty {
-                            ProfileInfoView(label: "Land", value: profile.country)
-                        }
-                        
-                        if !profile.city.isEmpty {
-                            ProfileInfoView(label: "Stadt", value: profile.city)
-                        }
-                        
-                        if !profile.state.isEmpty {
-                            ProfileInfoView(label: "Bundesland", value: profile.state)
-                        }
-                        
-                        if !profile.wildspace.isEmpty {
-                            VStack(alignment: .leading) {
+                        // Profilinformationen anzeigen
+                        Group {
+                            if !profile.name.isEmpty {
+                                ProfileInfoView(label: "Name", value: profile.name)
+                            }
+                            
+                            if !profile.age.isEmpty {
+                                ProfileInfoView(label: "Alter", value: profile.age)
+                            }
+                            
+                            if !profile.birthday.isEmpty {
+                                ProfileInfoView(label: "Geburtstag", value: profile.birthday)
+                            }
+                            
+                            if !profile.gender.isEmpty {
+                                ProfileInfoView(label: "Geschlecht", value: profile.gender)
+                            }
+                            
+                            if !profile.relationshipStatus.isEmpty {
+                                ProfileInfoView(label: "Beziehungsstatus", value: profile.relationshipStatus)
+                            }
+                            
+                            if !profile.country.isEmpty {
+                                ProfileInfoView(label: "Land", value: profile.country)
+                            }
+                            
+                            if !profile.city.isEmpty {
+                                ProfileInfoView(label: "Stadt", value: profile.city)
+                            }
+                            
+                            if !profile.state.isEmpty {
+                                ProfileInfoView(label: "Bundesland", value: profile.state)
+                            }
+                            
+                            if !profile.wildspace.isEmpty {
                                 Text("Wildspace:")
-                                    .font(.headline)
-                                    .foregroundColor(.black)
-                                Text(profile.wildspace)
-                                    .font(.body)
-                                    .foregroundColor(.black)
-                                    .padding(.top, 4)
+                                        .font(.headline)
+                                        .foregroundColor(.black)
+                                        .frame(alignment: .leading)
+                                    Text(profile.wildspace)
+                                        .font(.body)
+                                        .foregroundColor(.black)
+                                        .padding(.top, 4)
+                                        .frame(alignment: .leading)
                             }
                         }
                     }
-                    
-                    Spacer()
-                    
-                    Button(action: {
-                        userDatasViewModel.closeProfilePopup()
-                    }) {
-                        Text("Schließen")
-                            .padding()
-                            .background(Color.blue)
-                            .foregroundColor(.white)
-                            .cornerRadius(10)
-                            .padding(.top, 16)
-                    }
                 }
-                .padding()
-                .background(Color.white)
-                .cornerRadius(20)
-                .shadow(radius: 10)
-                .frame(width: geometry.size.width, height: geometry.size.height)
+                
+                Button(action: {
+                    userDatasViewModel.closeProfilePopup()
+                }) {
+                    Text("Schließen")
+                        .padding()
+                        .background(Color.blue)
+                        .foregroundColor(.white)
+                        .cornerRadius(10)
+                        .padding(.top, 16)
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.bottom, 20)
             }
+            .padding()
+            .background(Color.white)
+            .cornerRadius(20)
+            .shadow(radius: 10)
+            .frame(width: geometry.size.width, height: geometry.size.height)
         }
         .ignoresSafeArea(.container, edges: .bottom)
     }
@@ -139,7 +139,6 @@ struct ProfileViewPopup: View {
         }
     }
     
-    // Funktion, die prüft, ob die Profilfelder leer sind
     private func isProfileEmpty() -> Bool {
         return profile.name.isEmpty &&
                profile.age.isEmpty &&

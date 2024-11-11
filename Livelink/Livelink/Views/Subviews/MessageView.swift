@@ -37,4 +37,3 @@ struct MessageView: View {
         userDatasViewModel.showProfilePopup = true
     }
 }
-
