@@ -11,14 +11,14 @@ import Combine
 class ChannelsViewModel: ObservableObject {
     @Published var channels = [Channel]()
     @Published var currentChannel: ChannelJoin?
-    @Published private var messages = [Message]()
+    @Published var messages = [Message]()
     @Published var onlineUsers = [OnlineUser]()
     
     private var database = FirebaseManager.shared.database
     
     init() {
-            fetchChannels()
-        }
+        fetchChannels()
+    }
 
     func fetchChannels() {
         database.collection("channels").getDocuments { querySnapshot, error in
@@ -39,8 +39,8 @@ class ChannelsViewModel: ObservableObject {
         }
     }
 
-    // Funktion um einen Channel zu betreten
-    func joinChannel(channel: Channel) {
+    // Asynchrone Funktion zum Betreten eines Channels
+    func joinChannel(channel: Channel) async {
         messages = []
         currentChannel = ChannelJoin(channelID: channel.name, backgroundURL: channel.backgroundUrl)
 
@@ -48,18 +48,55 @@ class ChannelsViewModel: ObservableObject {
         let username = "currentUserUsername" // Ersetze mit dem aktuellen Benutzernamen
         let userDataRef = database.collection("users").document(username)
         
-        // Hier fügen wir nun den betretenen Channel in die UserData des
-        // eingeloggten Users bei den lastChannels hinzu
-        userDataRef.updateData([
-            "lastChannels": FieldValue.arrayUnion([channel])
-        ]) { error in
-            if let error = error {
-                print("Error adding channel to lastChannels: \(error)")
-            } else {
-                print("Channel successfully added to lastChannels.")
+        // Channel zur `lastChannels` des Benutzers hinzufügen
+        do {
+            try await userDataRef.updateData([
+                "lastChannels": FieldValue.arrayUnion([channel.name])
+            ])
+            print("Channel successfully added to lastChannels.")
+            
+            // Update the UI on the main thread
+            DispatchQueue.main.async {
+                // Any other updates to @Published properties go here
+                // If messages or currentChannel need to be updated on the main thread after this operation
             }
+        } catch {
+            print("Error adding channel to lastChannels: \(error)")
         }
     }
+
+
+    // Asynchrone Funktion zum Abrufen der Nachrichten eines Channels
+    // Asynchrone Funktion zum Abrufen der Nachrichten eines Channels
+    func fetchMessages() {
+        guard let channelID = currentChannel?.channelID else { return }
+
+        // Beobachte Änderungen in den Nachrichten des Channels in Echtzeit
+        database.collection("channels")
+            .document(channelID)
+            .collection("messages")
+            .order(by: "timestamp", descending: false)
+            .addSnapshotListener { snapshot, error in
+                if let error = error {
+                    print("Error fetching messages: \(error)")
+                    return
+                }
+
+                guard let documents = snapshot?.documents else {
+                    print("No messages found")
+                    return
+                }
+
+                // Nachrichten aus dem Snapshot extrahieren
+                self.messages = documents.compactMap { document in
+                    try? document.data(as: Message.self)
+                }
+
+                // UI-Updates erfolgen automatisch über @Published
+                print("Loaded messages: \(self.messages)")
+            }
+    }
+
 
     // Funktion zum Senden einer Nachricht an einen Channel
     func sendMessage(message: Message) {
@@ -78,25 +115,6 @@ class ChannelsViewModel: ObservableObject {
                 print("Message sent successfully.")
             }
         }
-    }
-
-    // Funktion zum Abrufen der Nachrichten eines Channels
-    func fetchMessages() {
-        guard let channelID = currentChannel?.channelID else { return }
-
-        database.collection("channels").document(channelID).collection("messages")
-            .order(by: "timestamp", descending: false)
-            .addSnapshotListener { querySnapshot, error in
-                if let error = error {
-                    print("Error fetching messages: \(error)")
-                    return
-                }
-
-                self.messages = querySnapshot?.documents.compactMap { document in
-                    try? document.data(as: Message.self)
-                } ?? []
-                print("Loaded messages: \(self._messages)")
-            }
     }
 
     // Funktion zum Abrufen der Online User eines Channels
