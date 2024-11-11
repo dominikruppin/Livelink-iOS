@@ -11,7 +11,7 @@ import Combine
 class ChannelsViewModel: ObservableObject {
     @Published var channels = [Channel]()
     @Published var currentChannel: ChannelJoin?
-    @Published private var messages = [Message]()
+    @Published var messages = [Message]()
     @Published var onlineUsers = [OnlineUser]()
     
     private var database = FirebaseManager.shared.database

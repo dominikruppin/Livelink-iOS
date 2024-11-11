@@ -75,7 +75,7 @@ struct HomeView: View {
                                 ProfileVisitorView(visitor: visitor)
                                     .onTapGesture {
                                         userDatasViewModel.loadUserDataByUsername(username: visitor.username)
-                                        userDatasViewModel.showProfilePopup = true  // Profil-Popup anzeigen
+                                        userDatasViewModel.showProfilePopup = true
                                     }
                             }
                             Spacer(minLength: 16)
@@ -95,7 +95,9 @@ struct HomeView: View {
                         HStack(spacing: 10) {
                             Spacer(minLength: 16)
                             ForEach(userData.lastChannels, id: \.name) { channel in
-                                ChannelView(channel: channel)
+                                NavigationLink(destination: JoinedChannelView(channel: channel)) {
+                                    ChannelView(channel: channel)
+                                }
                             }
                             Spacer(minLength: 16)
                         }
