@@ -139,7 +139,7 @@ struct ProfileViewPopup: View {
         }
     }
     
-    // Funktion, die prüft, ob die meisten Profilfelder leer sind
+    // Funktion, die prüft, ob die Profilfelder leer sind
     private func isProfileEmpty() -> Bool {
         return profile.name.isEmpty &&
                profile.age.isEmpty &&

@@ -64,6 +64,8 @@ struct JoinedChannelView: View {
                 }
                 .padding()
             }
+            .frame(maxWidth: .infinity)
+            .padding(.horizontal, 20)
         }
         .navigationBarTitle("Channel: " + channel.name, displayMode: .inline)
         .onAppear {
