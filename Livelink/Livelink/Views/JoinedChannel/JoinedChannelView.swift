@@ -77,7 +77,7 @@ struct JoinedChannelView: View {
     }
     
     private func joinChannelAndFetchMessages() async {
-        await channelsViewModel.joinChannel(channel: channel)
+        await channelsViewModel.joinChannel(channel: channel, username: userDatasViewModel.userData!.username)
         channelsViewModel.fetchMessages()
     }
     
