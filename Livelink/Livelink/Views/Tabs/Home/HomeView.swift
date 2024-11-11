@@ -106,6 +106,13 @@ struct HomeView: View {
         .onChange(of: searchQuery) { newValue in
             userDatasViewModel.searchUsers(query: newValue)
         }
+        
+        // Sheet für das Profil-Popup
+        .sheet(isPresented: $userDatasViewModel.showProfilePopup) {
+            if let profileData = userDatasViewModel.profileUserData {
+                ProfileViewPopup(profile: profileData)  // Zeige das Profil im Sheet
+            }
+        }
     }
     
     private func greetingMessage() -> String {
@@ -123,3 +130,4 @@ struct HomeView: View {
     HomeView()
         .environmentObject(UserDatasViewModel())
 }
+

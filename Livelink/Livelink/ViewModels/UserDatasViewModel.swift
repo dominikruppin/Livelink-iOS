@@ -21,6 +21,7 @@ class UserDatasViewModel: ObservableObject {
     @Published var profileUserData: UserData?
     @Published var searchResults: [UserData] = []
     @Published var isLoadingUserData: Bool = true
+    @Published var showProfilePopup: Bool = false
     
     init() {
         self.usersCollectionReference = database.collection("users")
@@ -80,9 +81,14 @@ class UserDatasViewModel: ObservableObject {
                 }
                 
                 self?.profileUserData = data
+                self?.showProfilePopup = true
                 print("Benutzerdaten für \(username) erfolgreich geladen: \(data)")
             }
     }
+    
+    func closeProfilePopup() {
+            showProfilePopup = false
+        }
     
     // User-Daten aktualisieren
     func updateUserData(uid: String, newData: [String: Any]) {
