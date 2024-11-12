@@ -165,6 +165,14 @@ struct EditProfileView: View {
                 loadUserData()
             }
             .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                        Button(action: {
+                            authViewModel.logout()
+                        }) {
+                            Text("Logout")
+                                .font(.headline)
+                        }
+                    }
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button(action: {
                         saveProfileData()
@@ -243,7 +251,7 @@ struct EditProfileView: View {
                     "city": city ?? ""
                 ]
 
-                self.userDatasViewModel.updateUserData(uid: self.authViewModel.currentUser?.uid ?? "<default value>", newData: newData)
+                self.userDatasViewModel.updateUserData(uid: self.authViewModel.currentUser!.uid, newData: newData)
             }
         } else {
             let newData: [String: Any] = [
