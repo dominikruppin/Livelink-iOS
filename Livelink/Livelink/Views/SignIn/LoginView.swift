@@ -7,6 +7,7 @@
 
 import SwiftUI
 
+// View für den Login
 struct LoginView: View {
     @EnvironmentObject var viewModel: AuthViewModel
     @State private var username: String = "" // Benutzername speichern

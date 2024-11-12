@@ -7,6 +7,7 @@
 
 import SwiftUI
 
+// Zeigt die Übersicht aller Channel, unterteilt in Kategorien + Channels
 struct ChannelsView: View {
     @EnvironmentObject var channelsViewModel: ChannelsViewModel
     

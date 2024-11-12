@@ -8,6 +8,7 @@
 import SwiftUI
 import WebKit
 
+// Zeigt die HTML Inhalte in der Wildspace an
 struct WebView: UIViewRepresentable {
     var htmlContent: String
     
@@ -20,6 +21,7 @@ struct WebView: UIViewRepresentable {
     }
 }
 
+// Zeigt das Profil an
 struct ProfileViewPopup: View {
     var profile: UserData
     @EnvironmentObject var userDatasViewModel: UserDatasViewModel
@@ -162,6 +164,7 @@ struct ProfileViewPopup: View {
     }
     
     // Funktion, die das erste Bild ersetzt und alle anderen entfernt
+    // TODO! FUNKTIONIERT NOCH NICHT.
     private func transformWildspace(_ content: String) -> String {
         // Finde alle [LINK] Tags mit einer URL
         let pattern = #"\[LINK\](http[^\s]+)"# // Sucht nach [LINK] gefolgt von einer URL

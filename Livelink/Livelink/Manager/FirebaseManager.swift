@@ -9,6 +9,8 @@ import FirebaseAuth
 import FirebaseFirestore
 import FirebaseStorage
 
+
+// Verwaltet/hält die Instanzen der Firebase Dienste
 class FirebaseManager {
 
     static let shared = FirebaseManager()

@@ -7,6 +7,8 @@
 
 import SwiftUI
 
+// Wird angezeigt wenn man einen Channel betritt. Beinhaltet die Anzeige der Chatnachrichten sowie Eingabeleiste zum senden von Nachrichten an den Channel.
+// TODO: USERLISTE
 struct JoinedChannelView: View {
     @EnvironmentObject var channelsViewModel: ChannelsViewModel
     @EnvironmentObject var userDatasViewModel: UserDatasViewModel

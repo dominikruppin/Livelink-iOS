@@ -7,6 +7,8 @@
 
 import SwiftUI
 
+// Wird beim starten der App angezeigt bis die UserDaten aus Firebase geladen worden sind
+// TODO
 struct LoadingView: View {
     var body: some View {
         VStack {

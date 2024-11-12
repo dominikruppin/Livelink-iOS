@@ -11,24 +11,34 @@ import FirebaseFirestore
 import Combine
 import SwiftUICore
 
+// Verwaltet die UserDaten des eingeloggten Nutzers und der aufgerufenen Profile
 class UserDatasViewModel: ObservableObject {
+    // Zugriff auf die globale Instanz
     private let database = FirebaseManager.shared.database
+    // Speicherpfad der userdaten
     private let usersCollectionReference: CollectionReference
+    // Speicherpfad der channeldaten
     private let channelsReference: CollectionReference
     private var cancellables = Set<AnyCancellable>() // Für Combine
     
+    // Speichert die UserDaten des eingeloggten Nutzers
     @Published var userData: UserData?
+    // Speichert die UserDaten der Person, dessen Profil aufgerufen wird
     @Published var profileUserData: UserData?
+    // Speichert die Liste der Suchergebnisse (Nutzersuche)
     @Published var searchResults: [UserData] = []
+    // Gibt an ob gerade userdaten geladen werden
     @Published var isLoadingUserData: Bool = true
+    // Gibt an ob gerade ein Profil geöffnet ist
     @Published var showProfilePopup: Bool = false
     
+    // Setzen der Pfade
     init() {
         self.usersCollectionReference = database.collection("users")
         self.channelsReference = database.collection("channels")
     }
     
-    // Laden der Nutzerdaten mit Snapshot-Listener
+    // Laden der Nutzerdaten mit Echtzeitupdates durch Snapshot-Listener
     func loadUserData(for uid: String) {
         isLoadingUserData = true
         let userDataDocumentReference = usersCollectionReference.document(uid)
@@ -86,11 +96,12 @@ class UserDatasViewModel: ObservableObject {
             }
     }
     
+    // Wird beim schließen eines Profiles aufgerufen um den Boolean zurück zu setzen
     func closeProfilePopup() {
-            showProfilePopup = false
-        }
+        showProfilePopup = false
+    }
     
-    // User-Daten aktualisieren
+    // User-Daten aktualisieren (Profil Änderungen) - Nur die übergebenen Felder werden aktualisiert
     func updateUserData(uid: String, newData: [String: Any]) {
         usersCollectionReference.document(uid).updateData(newData) { error in
             if let error = error {
@@ -99,9 +110,11 @@ class UserDatasViewModel: ObservableObject {
         }
     }
     
+    // Funktion zum hochladen eines neuen Profilbildes
     func uploadProfileImage(image: UIImage) {
         guard let uid = FirebaseManager.shared.auth.currentUser?.uid else { return }
         let timestamp = Int(Date().timeIntervalSince1970) // Aktueller Timestamp in Sekunden
+        // Speicherpfad des Bildes
         let storageRef = Storage.storage().reference().child("images/\(uid)/profilepics/\(timestamp).jpg")
         
         if let imageData = image.jpegData(compressionQuality: 0.75) {
@@ -125,6 +138,7 @@ class UserDatasViewModel: ObservableObject {
         }
     }
     
+    // Funktion um die URL des neuen Profilbildes in den Userdaten zu speichern
     func updateUserProfilePicURL(_ url: String) {
         guard let uid = FirebaseManager.shared.auth.currentUser?.uid else {
             print("User not authenticated")
@@ -139,7 +153,7 @@ class UserDatasViewModel: ObservableObject {
     }
     
     // Prüfen, ob ein Benutzername bereits existiert
-    func isUsernameTaken(username: String, completion: @escaping (Bool) -> Void) {
+    /*func isUsernameTaken(username: String, completion: @escaping (Bool) -> Void) {
         let lowercaseUsername = username.lowercased()
         usersCollectionReference.whereField("usernameLowercase", isEqualTo: lowercaseUsername)
             .getDocuments { snapshot, error in
@@ -150,7 +164,7 @@ class UserDatasViewModel: ObservableObject {
                     completion(snapshot?.isEmpty == false)
                 }
             }
-    }
+    }*/
     
     // Nutzer suchen
     func searchUsers(query: String) {

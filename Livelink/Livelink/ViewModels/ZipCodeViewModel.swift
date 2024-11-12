@@ -8,17 +8,18 @@
 import Foundation
 import Combine
 
-// ViewModel für den Zugriff auf die ZipCode-Daten
+// ViewModel für den Zugriff auf die openPLZ API
 class ZipCodeViewModel: ObservableObject {
     private let zipCodeRepository: ZipCodeRepository
-    
     @Published var zipCodeInfos: [ZipCodeInfos] = [] // Liste der PLZ-Infos
     @Published var errorMessage: String?  // Fehlernachricht bei API-Fehlern
 
+    // Repository initialisieren
     init(zipCodeRepository: ZipCodeRepository = ZipCodeRepository()) {
         self.zipCodeRepository = zipCodeRepository
     }
 
+    // Funktion zum laden der Infos zu einer Postleitzahl (Angabe des Landes mit kürzel DE/AT/CH nötig)
     func fetchZipInfos(country: String, postalCode: String, completion: @escaping (String?, String?, String?) -> Void) {
         zipCodeRepository.getZipInfos(country: country, postalCode: postalCode) { [weak self] result in
             DispatchQueue.main.async {

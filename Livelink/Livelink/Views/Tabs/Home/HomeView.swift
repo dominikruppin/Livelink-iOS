@@ -1,6 +1,8 @@
 import SwiftUI
 import SwiftUIX
 
+// Anzeigen der HomeView, also Übersicht bei eingeloggten Nutzer
+// Beinhaltet Uhrzeitabhängig Begrüßung, Searchbar zur Nutzersuche, Anzeige der letzten Profilbesucher sowie besuchten Channel
 struct HomeView: View {
     @EnvironmentObject var userDatasViewModel: UserDatasViewModel
     @EnvironmentObject var channelsViewModel: ChannelsViewModel
@@ -123,8 +125,8 @@ struct HomeView: View {
                         .edgesIgnoringSafeArea(.all)
                 }
             }
-            .navigationTitle("") // Optional: Titel für die NavigationBar
-            .navigationBarHidden(true) // Optional: NavigationBar ausblenden
+            .navigationTitle("")
+            .navigationBarHidden(true)
         }
     }
     

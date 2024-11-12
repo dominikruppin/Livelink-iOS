@@ -7,9 +7,11 @@
 
 import Foundation
 
+// Repository für den Zugriff auf die openPLZ API
 class ZipCodeRepository: ZipCodeApiService {
-    private let baseUrl = URL(string: "https://openplzapi.org/")!
+    private let baseUrl = URL(string: "https://openplzapi.org/")! // Basis-URL
     
+    // Funktion zum abrufen der Infos zu einer Postleitzahl (Land Angabe DE/CH/AT erforderlich)
     func getZipInfos(country: String, postalCode: String, completion: @escaping (Result<[ZipCodeInfos], Error>) -> Void) {
         let countryCode: String
         switch country.lowercased() {
@@ -23,15 +25,18 @@ class ZipCodeRepository: ZipCodeApiService {
             completion(.failure(NSError(domain: "UnsupportedCountry", code: -1, userInfo: [NSLocalizedDescriptionKey: "Country not supported"])))
             return
         }
-        let url = baseUrl.appendingPathComponent("\(countryCode)/Localities")
+        let url = baseUrl.appendingPathComponent("\(countryCode)/Localities") // Erweiterer URL Pfad, Countrycode hinzugefügt
         var urlComponents = URLComponents(url: url, resolvingAgainstBaseURL: false)!
+        // Hinzufügen der Postleitzahl als Query-Parameter zur URL
         urlComponents.queryItems = [URLQueryItem(name: "postalCode", value: postalCode)]
         
+        // Sicherstellen, dass die URL korrekt aufgebaut wurde, ansonsten Fehler zurückgeben
         guard let finalUrl = urlComponents.url else {
             completion(.failure(NSError(domain: "URL Error", code: -1, userInfo: nil)))
             return
         }
         
+        // API Call mit der erstellten URL sowie Fehlerbehandlung
         let task = URLSession.shared.dataTask(with: finalUrl) { data, response, error in
             if let error = error {
                 completion(.failure(error))
@@ -42,9 +47,6 @@ class ZipCodeRepository: ZipCodeApiService {
                 completion(.failure(NSError(domain: "DataError", code: -1, userInfo: nil)))
                 return
             }
-            
-            let jsonString = String(data: data, encoding: .utf8)
-            print("API Response: \(jsonString ?? "")")
             
             do {
                 let zipCodeInfos = try JSONDecoder().decode([ZipCodeInfos].self, from: data)

@@ -6,7 +6,6 @@
 //
 
 // Datenstruktur für die openPLZ API, um das Bundesland abzurufen
-
 struct FederalState: Codable {
     var key: String
     var name: String

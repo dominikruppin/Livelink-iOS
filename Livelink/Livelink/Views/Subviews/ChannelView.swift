@@ -7,6 +7,7 @@
 
 import SwiftUI
 
+// Repräsentiert die Anzeige eines Channels (Subview)
 struct ChannelView: View {
     var channel: Channel
 

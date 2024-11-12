@@ -9,18 +9,24 @@ import Firebase
 import FirebaseAuth
 import Combine
 
+// ViewModel zur Verwaltung der Channelaktionen
 class ChannelsViewModel: ObservableObject {
+    // Speichert das Array welches alle verfügbaren Channel beinhaltet
     @Published var channels = [Channel]()
+    // Beinhaltet den aktuellen Channel in dem sich der Nutzer aufhält (falls er sich in einem aufhält)
     @Published var currentChannel: ChannelJoin?
+    // Speichert die Nachrichten des Channels
     @Published var messages = [Message]()
+    // Speichert die Liste der OnlineUser
     @Published var onlineUsers = [OnlineUser]()
-    private var joinTimestamp: Timestamp?
     private var database = FirebaseManager.shared.database
     
+    // Direkt beim starten der App holen wir uns die aktuelle Channelliste
     init() {
         fetchChannels()
     }
     
+    // Funktion zum laden der aktuellen Channelliste - Auf Snapshotlistener verzichtet da diese sich selten ändert
     func fetchChannels() {
         database.collection("channels").getDocuments { querySnapshot, error in
             if let error = error {
@@ -40,6 +46,7 @@ class ChannelsViewModel: ObservableObject {
         }
     }
     
+    // Funktion um einen Channel zu betreten (lastChannel wird aktualisiert, messages geleert falls noch Nachrichten von altem Channelbeitritt vorhanden und das ChannelJoin Objekt erstellt)
     func joinChannel(channel: Channel) async {
         DispatchQueue.main.async {
             self.messages = []
@@ -85,12 +92,13 @@ class ChannelsViewModel: ObservableObject {
         }
     }
 
+    // Funktion zum abrufen der Nachrichten in einem Channel (samt Echtzeitupdate durch Snapshotlistener)
     func fetchMessages() {
         print("Fetch Messages aufgerufen")
-            guard let channelID = currentChannel?.channelID else { return }
+        guard let channelID = currentChannel?.channelID else { return }
         guard let joinTimestamp = currentChannel?.timestamp else { return }
 
-            // Neue Nachrichten mit einem höheren Timestamp als der Beitritts-Timestamp
+            // Neue Nachrichten mit einem höheren Timestamp als der Beitritts-Timestamp laden
             database.collection("channels")
                 .document(channelID)
                 .collection("messages")
@@ -155,6 +163,7 @@ class ChannelsViewModel: ObservableObject {
     }
     
     // Funktion zum Hinzufügen oder Aktualisieren von Online User Daten
+    // TODO
     func addOrUpdateOnlineUserData(username: String, age: String, gender: String, profilePic: String, status: Int) {
         guard let channelID = currentChannel?.channelID else { return }
         
@@ -179,6 +188,7 @@ class ChannelsViewModel: ObservableObject {
     }
     
     // Funktion zum Aktualisieren des eigenen Timestamps in den Online Usern
+    // TODO
     func updateOnlineUserTimestamp(username: String) {
         guard let channelID = currentChannel?.channelID else { return }
         
@@ -193,7 +203,7 @@ class ChannelsViewModel: ObservableObject {
             }
     }
     
-    // Funktion um den Nutzer aus dem Channel zu entfernen
+    // Funktion um den Nutzer aus den Online Users des Channels zu entfernen
     func onChannelLeave(username: String) {
         guard let channelID = currentChannel?.channelID else { return }
         

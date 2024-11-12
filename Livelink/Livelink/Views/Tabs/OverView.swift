@@ -7,6 +7,7 @@
 
 import SwiftUI
 
+// Repräsentiert die Anzeige der Tabview samt zugehöriger Views
 struct OverView: View {
     var body: some View {
         ZStack {

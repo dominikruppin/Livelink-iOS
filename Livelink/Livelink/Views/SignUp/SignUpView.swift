@@ -8,6 +8,7 @@
 import SwiftUI
 import Combine
 
+// View für die Registrierung
 struct SignUpView: View {
     @Environment(\.presentationMode) var presentationMode // Für die Navigation zurück
     @StateObject private var viewModel = AuthViewModel()

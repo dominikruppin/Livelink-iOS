@@ -7,6 +7,7 @@
 
 import SwiftUI
 
+// Repräsentiert die Anzeige einer Chatnachricht (Subview)
 struct MessageView: View {
     var message: Message
     @EnvironmentObject var userDatasViewModel: UserDatasViewModel

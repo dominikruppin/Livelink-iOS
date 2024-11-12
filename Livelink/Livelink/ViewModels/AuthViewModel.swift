@@ -10,7 +10,9 @@ import FirebaseAuth
 import FirebaseFirestore
 import Combine
 
+// ViewModel für Firebase Auth Verwaltung
 class AuthViewModel: ObservableObject {
+    // Zugriff auf die globale Instanzen
     private let auth = FirebaseManager.shared.auth
     private let database = FirebaseManager.shared.database
     private let usersCollectionReference: CollectionReference
@@ -21,7 +23,7 @@ class AuthViewModel: ObservableObject {
     private var cancellables = Set<AnyCancellable>() // Für Combine
     
     init() {
-        self.usersCollectionReference = database.collection("users")
+        self.usersCollectionReference = database.collection("users") // Speicherort der Userdaten
         setupUserEnv() // Userumgebung einrichten
     }
     
@@ -38,6 +40,7 @@ class AuthViewModel: ObservableObject {
         userDataViewModel.loadUserData(for: user.uid)
     }
     
+    // Funktion zur Registrierung eines neuen Nutzers (Firebase Auth + Userdaten in FireStore anlegen)
     func register(username: String, email: String, password: String, completion: @escaping (Bool) -> Void) {
         auth.createUser(withEmail: email, password: password) { [weak self] result, error in
             guard let self = self else { return }
@@ -125,7 +128,7 @@ class AuthViewModel: ObservableObject {
     // Funktion zum Ausloggen eines Nutzers
     func logout() {
         do {
-            try auth.signOut()
+            try auth.signOut() // Aus Firebase Auth ausloggen
             currentUser = nil // Benutzerstatus zurücksetzen
             print("User erfolgreich ausgeloggt")
         } catch {
