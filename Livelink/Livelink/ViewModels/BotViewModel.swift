@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import Combine
 
 // ViewModel für die Bot-Kommunikation
 class BotViewModel: ObservableObject {

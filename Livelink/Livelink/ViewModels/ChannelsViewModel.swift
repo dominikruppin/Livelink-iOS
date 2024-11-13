@@ -7,7 +7,6 @@
 
 import Firebase
 import FirebaseAuth
-import Combine
 
 // ViewModel zur Verwaltung der Channelaktionen
 class ChannelsViewModel: ObservableObject {

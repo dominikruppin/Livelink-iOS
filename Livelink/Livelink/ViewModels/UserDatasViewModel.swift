@@ -8,7 +8,6 @@
 import Firebase
 import FirebaseStorage
 import FirebaseFirestore
-import Combine
 import SwiftUICore
 
 // Verwaltet die UserDaten des eingeloggten Nutzers und der aufgerufenen Profile
@@ -19,8 +18,6 @@ class UserDatasViewModel: ObservableObject {
     private let usersCollectionReference: CollectionReference
     // Speicherpfad der channeldaten
     private let channelsReference: CollectionReference
-    private var cancellables = Set<AnyCancellable>() // Für Combine
-    
     // Speichert die UserDaten des eingeloggten Nutzers
     @Published var userData: UserData?
     // Speichert die UserDaten der Person, dessen Profil aufgerufen wird
@@ -151,21 +148,7 @@ class UserDatasViewModel: ObservableObject {
 
         self.updateUserData(uid: uid, newData: newData)
     }
-    
-    // Prüfen, ob ein Benutzername bereits existiert
-    /*func isUsernameTaken(username: String, completion: @escaping (Bool) -> Void) {
-        let lowercaseUsername = username.lowercased()
-        usersCollectionReference.whereField("usernameLowercase", isEqualTo: lowercaseUsername)
-            .getDocuments { snapshot, error in
-                if let error = error {
-                    print("Fehler bei der Überprüfung des Benutzernamens: \(error.localizedDescription)")
-                    completion(false)
-                } else {
-                    completion(snapshot?.isEmpty == false)
-                }
-            }
-    }*/
-    
+        
     // Nutzer suchen
     func searchUsers(query: String) {
         let queryLowercase = query.lowercased()
