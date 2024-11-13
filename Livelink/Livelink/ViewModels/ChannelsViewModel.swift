@@ -41,7 +41,6 @@ class ChannelsViewModel: ObservableObject {
             self.channels = documents.compactMap { document in
                 try? document.data(as: Channel.self)
             }
-            print("Fetched channels: \(self._channels)")
         }
     }
     
