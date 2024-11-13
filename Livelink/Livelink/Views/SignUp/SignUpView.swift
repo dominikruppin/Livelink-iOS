@@ -11,7 +11,7 @@ import Combine
 // View für die Registrierung
 struct SignUpView: View {
     @Environment(\.presentationMode) var presentationMode // Für die Navigation zurück
-    @StateObject private var viewModel = AuthViewModel()
+    @EnvironmentObject var authViewModel: AuthViewModel
     @State private var username: String = ""
     @State private var email: String = ""
     @State private var password: String = ""
@@ -145,7 +145,7 @@ struct SignUpView: View {
             return
         }
         
-        viewModel.register(username: username, email: email, password: password) { success in
+        authViewModel.register(username: username, email: email, password: password) { success in
             if success {
                 registrationMessage = "Registrierung erfolgreich! Du wirst weitergeleitet..."
                 showRegistrationMessage = true
@@ -166,7 +166,7 @@ struct SignUpView: View {
         // Überprüfen, ob der Benutzername gültig ist
         isUsernameValid = username.range(of: validUsernameRegex, options: .regularExpression) != nil
         if isUsernameValid {
-            viewModel.isUsernameTaken(username: username) { isTaken in
+            authViewModel.isUsernameTaken(username: username) { isTaken in
                 isUsernameAvailable = !isTaken
             }
         } else {
@@ -178,11 +178,5 @@ struct SignUpView: View {
         // Regex Prüfung für die Emailadresse
         let emailRegex = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$"
         return email.range(of: emailRegex, options: .regularExpression) != nil
-    }
-}
-
-struct SignUpView_Previews: PreviewProvider {
-    static var previews: some View {
-        SignUpView().environmentObject(AuthViewModel())
     }
 }

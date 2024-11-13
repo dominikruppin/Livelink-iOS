@@ -16,20 +16,23 @@ class AuthViewModel: ObservableObject {
     private let auth = FirebaseManager.shared.auth
     private let database = FirebaseManager.shared.database
     private let usersCollectionReference: CollectionReference
-    
+    private var userDataViewModel: UserDatasViewModel
     @Published var currentUser: User? // Aktuell angemeldeter Benutzer
     @Published var errorMessage: String? // Fehlermeldungen
-    @Published var userDataViewModel = UserDatasViewModel()
     private var cancellables = Set<AnyCancellable>() // Für Combine
     
-    init() {
+    init(userDataViewModel: UserDatasViewModel) {
         self.usersCollectionReference = database.collection("users") // Speicherort der Userdaten
+        self.userDataViewModel = userDataViewModel
         setupUserEnv() // Userumgebung einrichten
+        print("Neues AuthViewModel erstellt")
     }
     
     // Laden der Nutzerdaten
     func setupUserEnv() {
         print("setupUserEnv aufgerufen")
+        print("User: \(auth.currentUser?.uid ?? "kein User")")
+        print("Data: \(userDataViewModel.userData?.username ?? "keine UserDaten")")
         guard let user = auth.currentUser else {
             currentUser = nil // Aktuellen Nutzer entfernen
             userDataViewModel.userData = nil // UserDaten entfernen
@@ -37,7 +40,7 @@ class AuthViewModel: ObservableObject {
         }
         print("aktueller user: \(user)")
         currentUser = user
-        userDataViewModel.loadUserData(for: user.uid)
+        //userDataViewModel.loadUserData(for: user.uid)
     }
     
     // Funktion zur Registrierung eines neuen Nutzers (Firebase Auth + Userdaten in FireStore anlegen)
@@ -52,7 +55,7 @@ class AuthViewModel: ObservableObject {
             }
             
             guard let user = result?.user else { return }
-
+            
             // Erstellen einer Instanz von UserData
             let newUserData = UserData(
                 username: username,
@@ -60,13 +63,13 @@ class AuthViewModel: ObservableObject {
                 email: email,
                 regDate: nil
             )
-
+            
             // User-Daten in Firestore speichern
             do {
                 // Umwandeln der neuen User-Daten
                 var data = try Firestore.Encoder().encode(newUserData)
                 data["regDate"] = FieldValue.serverTimestamp() // Serverseitiger Timestamp
-
+                
                 self.usersCollectionReference.document(user.uid).setData(data) { error in
                     if let error = error {
                         print("Fehler beim Speichern der UserData: \(error.localizedDescription)")
@@ -81,8 +84,8 @@ class AuthViewModel: ObservableObject {
             }
         }
     }
-
-
+    
+    
     // Funktion prüft, ob ein Username vergeben ist
     func isUsernameTaken(username: String, completion: @escaping (Bool) -> Void) {
         let lowercaseUsername = username.lowercased()
@@ -119,8 +122,12 @@ class AuthViewModel: ObservableObject {
                 print("Fehler beim Einloggen: \(error.localizedDescription)")
                 completion(false)
             } else {
-                self?.setupUserEnv() // Benutzerumgebung einrichten
-                completion(true) // Erfolgreich eingeloggt
+                self?.setupUserEnv()
+                self?.userDataViewModel.isLoadingUserData = true
+                if let uid = result?.user.uid {
+                    self?.userDataViewModel.loadUserData(for: uid)
+                }
+                completion(true)  // Erfolgreich eingeloggt
             }
         }
     }
@@ -130,7 +137,10 @@ class AuthViewModel: ObservableObject {
         do {
             try auth.signOut() // Aus Firebase Auth ausloggen
             currentUser = nil // Benutzerstatus zurücksetzen
+            userDataViewModel.logout()
             print("User erfolgreich ausgeloggt")
+            print("User: \(String(describing: currentUser))")
+            print("Data: \(String(describing: userDataViewModel.userData))")
         } catch {
             print("Fehler beim Ausloggen: \(error.localizedDescription)")
         }

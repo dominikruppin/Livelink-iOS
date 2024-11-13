@@ -29,11 +29,13 @@ class UserDatasViewModel: ObservableObject {
     @Published var isLoadingUserData: Bool = true
     // Gibt an ob gerade ein Profil geöffnet ist
     @Published var showProfilePopup: Bool = false
+    private var userDataListener: ListenerRegistration?
     
     // Setzen der Pfade
     init() {
         self.usersCollectionReference = database.collection("users")
         self.channelsReference = database.collection("channels")
+        print("Neues UserDatasViewModel erstellt")
     }
     
     // Laden der Nutzerdaten mit Echtzeitupdates durch Snapshot-Listener
@@ -72,27 +74,27 @@ class UserDatasViewModel: ObservableObject {
     func addProfileVisitor(visitedUser: UserData, visitor: ProfileVisitor) {
         // Aktuelle Liste der Profilbesucher aus dem userData des aufgerufenen Nutzers laden
         var updatedProfileVisitors = visitedUser.recentProfileVisitors
-
+        
         // Prüfen, ob der aufrufende Nutzer (visitor) bereits in der Liste vorhanden ist
         if let existingVisitorIndex = updatedProfileVisitors.firstIndex(where: { $0.username == visitor.username }) {
             // Falls vorhanden, entfernen, um später wieder hinzugefügt zu werden
             updatedProfileVisitors.remove(at: existingVisitorIndex)
         }
-
+        
         // Hinzufügen des aufrufenden Nutzers (visitor) an die vorderste Position der Liste
         updatedProfileVisitors.insert(visitor, at: 0)
-
+        
         // Falls die Liste mehr als 30 Besucher enthält, den ältesten entfernen
         if updatedProfileVisitors.count > 30 {
             updatedProfileVisitors.removeLast()
         }
-
+        
         // Umwandeln in Dictionary
         let updatedProfileVisitorsDicts = updatedProfileVisitors.map { $0.toDictionary() }
-
+        
         // Updates für das UserData
         let updates: [String: Any] = ["recentProfileVisitors": updatedProfileVisitorsDicts]
-
+        
         // Profil des Besuchten Nutzers in der Datenbank aktualisieren
         usersCollectionReference
             .whereField("usernameLowercase", isEqualTo: visitedUser.usernameLowercase)
@@ -101,14 +103,14 @@ class UserDatasViewModel: ObservableObject {
                     print("Fehler beim Suchen des Nutzers: \(error.localizedDescription)")
                     return
                 }
-
+                
                 guard let document = snapshot?.documents.first else {
                     print("Nutzer mit dem Namen \(visitedUser.usernameLowercase) nicht gefunden.")
                     return
                 }
-
+                
                 let userDocumentRef = document.reference
-
+                
                 // Profilbesucher in den UserData updaten
                 userDocumentRef.updateData(updates) { error in
                     if let error = error {
@@ -119,7 +121,7 @@ class UserDatasViewModel: ObservableObject {
                 }
             }
     }
-
+    
     
     // Funktion zum laden der Profiluserdaten anderer Nutzer
     func loadUserDataByUsername(username: String) {
@@ -144,7 +146,7 @@ class UserDatasViewModel: ObservableObject {
                 self?.profileUserData = data
                 self?.showProfilePopup = true
                 print("Benutzerdaten für \(username) erfolgreich geladen: \(data)")
-
+                
                 // Füge den aufrufenden Nutzer als Profilbesucher hinzu
                 if let currentUser = self?.userData, currentUser.username != data.username {
                     let visitor = ProfileVisitor(username: currentUser.username, profilePicURL: currentUser.profilePicURL)
@@ -152,7 +154,7 @@ class UserDatasViewModel: ObservableObject {
                 }
             }
     }
-
+    
     // Wird beim schließen eines Profiles aufgerufen um den Boolean zurück zu setzen
     func closeProfilePopup() {
         showProfilePopup = false
@@ -180,13 +182,13 @@ class UserDatasViewModel: ObservableObject {
                     print("Error uploading image: \(error.localizedDescription)")
                     return
                 }
-
+                
                 storageRef.downloadURL { url, error in
                     if let error = error {
                         print("Error getting download URL: \(error.localizedDescription)")
                         return
                     }
-
+                    
                     if let url = url {
                         self.updateUserProfilePicURL(url.absoluteString)
                     }
@@ -201,14 +203,14 @@ class UserDatasViewModel: ObservableObject {
             print("User not authenticated")
             return
         }
-
+        
         let newData: [String: Any] = [
             "profilePicURL": url
         ]
-
+        
         self.updateUserData(uid: uid, newData: newData)
     }
-        
+    
     // Nutzer suchen
     func searchUsers(query: String) {
         let queryLowercase = query.lowercased()
@@ -225,5 +227,16 @@ class UserDatasViewModel: ObservableObject {
                     self?.searchResults = snapshot?.documents.compactMap { try? $0.data(as: UserData.self) } ?? []
                 }
             }
+    }
+    
+    func logout() {
+        // Entferne den Snapshot-Listener
+        userDataListener?.remove()
+        userDataListener = nil
+        
+        // Setze User-Daten zurück
+        self.userData = nil
+        self.isLoadingUserData = true
+        print("UserData: \(String(describing: userData))")
     }
 }

@@ -12,18 +12,19 @@ import FirebaseAuth
 @main
 struct LivelinkApp: App {
     // Globale Instanzen welche an die Views weitergegeben werden
-    @StateObject private var authViewModel = AuthViewModel()
     @StateObject private var userDatasViewModel = UserDatasViewModel()
     @StateObject private var channelsViewModel = ChannelsViewModel()
     
-    // Firebase Konfiguration
     init() {
-        FirebaseConfiguration.shared.setLoggerLevel(.min)
-        FirebaseApp.configure()
-    }
-    
+            FirebaseConfiguration.shared.setLoggerLevel(.min)
+            FirebaseApp.configure()
+        }
+
     var body: some Scene {
         WindowGroup {
+            @StateObject var authViewModel = AuthViewModel(userDataViewModel: userDatasViewModel)
+            
+            // AuthViewModel mit userDatasViewModel
             if authViewModel.currentUser != nil {
                 if userDatasViewModel.isLoadingUserData {
                     LoadingView()

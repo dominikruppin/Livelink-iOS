@@ -113,6 +113,13 @@ struct HomeView: View {
                 .padding(.horizontal)
                 .frame(maxHeight: .infinity, alignment: .top)
             }
+            .onAppear() {
+                if let data = userDatasViewModel.userData {
+                    print("HomeViewData: \(data)")
+                } else {
+                    print("Keine Daten")
+                }
+            }
             .onChange(of: searchQuery) { newValue in
                 userDatasViewModel.searchUsers(query: newValue)
             }

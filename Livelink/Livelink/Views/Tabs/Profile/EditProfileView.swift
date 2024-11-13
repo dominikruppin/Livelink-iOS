@@ -319,10 +319,3 @@ struct ImagePickerController: UIViewControllerRepresentable {
 
     func updateUIViewController(_ uiViewController: UIImagePickerController, context: Context) {}
 }
-
-
-#Preview {
-    EditProfileView()
-        .environmentObject(AuthViewModel())
-        .environmentObject(UserDatasViewModel())
-}

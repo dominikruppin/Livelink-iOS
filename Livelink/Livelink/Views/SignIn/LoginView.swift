@@ -9,7 +9,7 @@ import SwiftUI
 
 // View für den Login
 struct LoginView: View {
-    @EnvironmentObject var viewModel: AuthViewModel
+    @EnvironmentObject var authViewModel: AuthViewModel
     @State private var username: String = "" // Benutzername speichern
     @State private var password: String = "" // Passwort speichern
     @State private var loginError: String? // Fehlernachricht
@@ -72,7 +72,7 @@ struct LoginView: View {
                     .padding(.horizontal)
 
                     // Navigationslink zur Registrierung
-                    NavigationLink(destination: SignUpView()) {
+                    NavigationLink(destination: SignUpView().environmentObject(authViewModel)) {
                         Text("Noch kein Konto? Registriere dich hier.")
                             .foregroundColor(Color.white)
                             .padding()
@@ -82,16 +82,16 @@ struct LoginView: View {
                     Spacer()
                 }
                 .padding(.bottom, 40)
-                .onAppear {
-                    viewModel.setupUserEnv()
-                }
+                /*.onAppear {
+                    authViewModel.setupUserEnv()
+                }*/
             }
         }
     }
 
     private func login() {
         // E-Mail aus dem Benutzernamen abrufen
-        viewModel.getMailFromUsername(username: username) { email in
+        authViewModel.getMailFromUsername(username: username) { email in
             guard let email = email else {
                 loginError = "Benutzername nicht gefunden."
                 return
@@ -99,7 +99,7 @@ struct LoginView: View {
             print(email)
 
             // Anmelden mit der E-Mail-Adresse
-            viewModel.login(email: email, password: password) { success in
+            authViewModel.login(email: email, password: password) { success in
                 if success {
                     // Login erfolgreich
                     print("Benutzer erfolgreich eingeloggt!")
@@ -109,11 +109,5 @@ struct LoginView: View {
                 }
             }
         }
-    }
-}
-
-struct LoginView_Previews: PreviewProvider {
-    static var previews: some View {
-        LoginView().environmentObject(AuthViewModel())
     }
 }
