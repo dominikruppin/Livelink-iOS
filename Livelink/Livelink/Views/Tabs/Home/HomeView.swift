@@ -89,19 +89,22 @@ struct HomeView: View {
                             .foregroundColor(.white)
                             .padding(.top)
                         
-                        /*ScrollView(.horizontal, showsIndicators: false) {
+                        ScrollView(.horizontal, showsIndicators: false) {
                             HStack(spacing: 10) {
                                 Spacer(minLength: 16)
                                 ForEach(userData.lastChannels, id: \.name) { channel in
-                                    NavigationLink(destination: JoinedChannelView(channel: channel)
-                                        .environmentObject(channelsViewModel)) {
-                                            ChannelView(channel: channel)
-                                        }
+                                    Button(action: {
+                                        selectedChannel = channel
+                                        isChannelActive = true
+                                        print("Navigating to channel: \(channel.name)")
+                                    }) {
+                                        ChannelView(channel: channel)
+                                    }
                                 }
                                 Spacer(minLength: 16)
                             }
                             .padding(.horizontal)
-                        }*/
+                        }
                     }
                     
                     Spacer()
