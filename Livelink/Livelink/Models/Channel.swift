@@ -6,7 +6,7 @@
 //
 
 // Datenstruktur, die einen Channel repräsentiert, in dem man chatten kann
-struct Channel: Codable {
+struct Channel: Codable, Equatable {
     var name: String = ""
     var backgroundUrl: String = ""
     var category: String = ""

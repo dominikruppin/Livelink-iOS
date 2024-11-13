@@ -10,6 +10,8 @@ import SwiftUI
 // Zeigt die Übersicht aller Channel, unterteilt in Kategorien + Channels
 struct ChannelsView: View {
     @EnvironmentObject var channelsViewModel: ChannelsViewModel
+    @Binding var isChannelActive: Bool // Bindung zum Zustand der aktiven Channel
+    @Binding var selectedChannel: Channel? // Bindung zur aktuell ausgewählten Channel
     
     var body: some View {
         NavigationView {
@@ -35,10 +37,10 @@ struct ChannelsView: View {
                                     ScrollView(.horizontal, showsIndicators: false) {
                                         HStack(spacing: 10) {
                                             ForEach(groupedChannels[category] ?? [], id: \.name) { channel in
-                                                NavigationLink(
-                                                    destination: JoinedChannelView(channel: channel)
-                                                        .environmentObject(channelsViewModel)
-                                                ) {
+                                                Button(action: {
+                                                    selectedChannel = channel
+                                                    isChannelActive = true
+                                                }) {
                                                     ChannelView(channel: channel)
                                                 }
                                             }
@@ -60,6 +62,6 @@ struct ChannelsView: View {
 }
 
 #Preview {
-    ChannelsView()
+    ChannelsView(isChannelActive: .constant(false), selectedChannel: .constant(nil))
         .environmentObject(ChannelsViewModel())
 }
