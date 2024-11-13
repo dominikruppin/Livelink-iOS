@@ -85,7 +85,8 @@ struct JoinedChannelView: View {
                                 }
                             }
                         }
-                        .padding()
+                        .padding(.bottom)
+                        .padding(.horizontal)
                     }
                     
                     // Nachricht senden
@@ -116,6 +117,19 @@ struct JoinedChannelView: View {
             }
             .onDisappear {
                 channelsViewModel.onChannelLeave(username: userDatasViewModel.userData!.username)
+            }
+            // Sheet für das Profil-Popup
+            .sheet(isPresented: $userDatasViewModel.showProfilePopup) {
+                if let profileData = userDatasViewModel.profileUserData {
+                    ProfileViewPopup(profile: profileData)
+                        .background(
+                            Image("background")
+                                .resizable()
+                                .scaledToFill()
+                                .edgesIgnoringSafeArea(.all)
+                        )
+                        .edgesIgnoringSafeArea(.all)
+                }
             }
         }
     }
