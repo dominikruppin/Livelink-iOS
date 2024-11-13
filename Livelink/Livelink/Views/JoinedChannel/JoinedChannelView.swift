@@ -48,7 +48,7 @@ struct JoinedChannelView: View {
                         Spacer()
                         
                         Text("Channel: \(channel.name)")
-                            .font(.title2)
+                            .font(.headline)
                             .fontWeight(.bold)
                             .foregroundColor(.white)
                         
@@ -63,6 +63,7 @@ struct JoinedChannelView: View {
                                 .foregroundColor(.white)
                         }
                     }
+                    .frame(maxWidth: .infinity)  // Sorgt dafür, dass die HStack die gesamte Breite einnimmt
                     .padding()
                     .background(Color.black.opacity(0.5))
                     
@@ -107,7 +108,6 @@ struct JoinedChannelView: View {
                     .padding(.horizontal, 4)
                     .frame(width: geometry.size.width * 0.95)
                 }
-                .padding(.horizontal, 20)
             }
             .onAppear {
                 print("JoinedChannelView appeared for \(channel.name)")
@@ -134,3 +134,4 @@ struct JoinedChannelView: View {
         messageContent = ""
     }
 }
+
