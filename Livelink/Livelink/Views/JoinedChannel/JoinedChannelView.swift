@@ -12,9 +12,10 @@ import SwiftUI
 struct JoinedChannelView: View {
     @EnvironmentObject var channelsViewModel: ChannelsViewModel
     @EnvironmentObject var userDatasViewModel: UserDatasViewModel
-    @Environment(\.dismiss) private var dismiss
     @State private var messageContent = ""
     var channel: Channel
+    @Binding var isChannelActive: Bool
+    @Binding var selectedChannel: Channel?
     
     var body: some View {
         GeometryReader { geometry in
@@ -32,6 +33,40 @@ struct JoinedChannelView: View {
                 }
                 
                 VStack {
+                    // Custom Toolbar
+                    HStack {
+                        Button(action: {
+                            isChannelActive = false
+                            selectedChannel = nil
+                        }) {
+                            Image(systemName: "arrow.left.circle.fill")
+                                .resizable()
+                                .frame(width: 30, height: 30)
+                                .foregroundColor(.white)
+                        }
+                        
+                        Spacer()
+                        
+                        Text("Channel: \(channel.name)")
+                            .font(.title2)
+                            .fontWeight(.bold)
+                            .foregroundColor(.white)
+                        
+                        Spacer()
+                        
+                        Button(action: {
+                            print("More options pressed")
+                        }) {
+                            Image(systemName: "ellipsis.circle.fill")
+                                .resizable()
+                                .frame(width: 30, height: 30)
+                                .foregroundColor(.white)
+                        }
+                    }
+                    .padding()
+                    .background(Color.black.opacity(0.5))
+                    
+                    // Chat Content
                     ScrollViewReader { scrollView in
                         ScrollView {
                             VStack {
@@ -52,12 +87,13 @@ struct JoinedChannelView: View {
                         .padding()
                     }
                     
+                    // Nachricht senden
                     HStack {
                         TextField("Nachricht senden...", text: $messageContent)
                             .padding(10)
                             .background(Color.white)
                             .cornerRadius(10)
-                            .frame(maxWidth: geometry.size.width * 0.7) // 80% der Breite für das Textfeld
+                            .frame(maxWidth: geometry.size.width * 0.7) // Breite für das Textfeld
                     
                         Button(action: sendMessage) {
                             Text("Senden")
@@ -66,28 +102,22 @@ struct JoinedChannelView: View {
                                 .foregroundColor(.white)
                                 .cornerRadius(10)
                         }
-                        .frame(width: geometry.size.width * 0.25) // 18% für den Button
+                        .frame(width: geometry.size.width * 0.25) // Breite für den  Senden Button
                     }
                     .padding(.horizontal, 4)
                     .frame(width: geometry.size.width * 0.95)
                 }
                 .padding(.horizontal, 20)
             }
-            .navigationBarTitle("Channel: " + channel.name, displayMode: .inline)
             .onAppear {
+                print("JoinedChannelView appeared for \(channel.name)")
                 Task {
                     await joinChannelAndFetchMessages()
                 }
             }
             .onDisappear {
+                print("Leaving channel: \(channel.name)")
                 channelsViewModel.onChannelLeave(username: userDatasViewModel.userData!.username)
-            }
-            .toolbar {
-                ToolbarItem(placement: .principal) {
-                    Text("Channel: " + channel.name)
-                        .foregroundColor(.white)
-                        .font(.headline)
-                }
             }
         }
     }
@@ -104,4 +134,3 @@ struct JoinedChannelView: View {
         messageContent = ""
     }
 }
-

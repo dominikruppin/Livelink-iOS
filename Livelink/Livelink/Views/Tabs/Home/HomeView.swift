@@ -7,6 +7,8 @@ struct HomeView: View {
     @EnvironmentObject var userDatasViewModel: UserDatasViewModel
     @EnvironmentObject var channelsViewModel: ChannelsViewModel
     @State private var searchQuery: String = ""
+    @Binding var isChannelActive: Bool
+    @Binding var selectedChannel: Channel?
     
     var body: some View {
         NavigationView {
@@ -87,7 +89,7 @@ struct HomeView: View {
                             .foregroundColor(.white)
                             .padding(.top)
                         
-                        ScrollView(.horizontal, showsIndicators: false) {
+                        /*ScrollView(.horizontal, showsIndicators: false) {
                             HStack(spacing: 10) {
                                 Spacer(minLength: 16)
                                 ForEach(userData.lastChannels, id: \.name) { channel in
@@ -99,7 +101,7 @@ struct HomeView: View {
                                 Spacer(minLength: 16)
                             }
                             .padding(.horizontal)
-                        }
+                        }*/
                     }
                     
                     Spacer()
@@ -139,9 +141,4 @@ struct HomeView: View {
         default: return "Hallo"
         }
     }
-}
-
-#Preview {
-    HomeView()
-        .environmentObject(UserDatasViewModel())
 }

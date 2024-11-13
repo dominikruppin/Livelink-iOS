@@ -15,9 +15,9 @@ struct MainTabView: View {
     var body: some View {
         ZStack {
             if !isChannelActive {
-                // Zeige die TabView, wenn kein Channel aktiv ist
+                // TabView anzeigen, wenn kein Channel aktiv ist
                 TabView {
-                    HomeView()
+                    HomeView(isChannelActive: $isChannelActive, selectedChannel: $selectedChannel)
                         .tabItem {
                             Label("Home", systemImage: "house")
                         }
@@ -41,11 +41,11 @@ struct MainTabView: View {
                     UITabBar.appearance().unselectedItemTintColor = UIColor(white: 1.0, alpha: 0.5)
                 }
             } else {
-                NavigationView {
-                    JoinedChannelView(channel: selectedChannel!)
-                        .onDisappear {
-                            isChannelActive = false
-                        }
+                // Anzeige der JoinedChannelView ohne Tabview
+                if let selectedChannel = selectedChannel {
+                    NavigationView {
+                        JoinedChannelView(channel: selectedChannel, isChannelActive: $isChannelActive, selectedChannel: $selectedChannel)
+                    }
                 }
             }
         }
