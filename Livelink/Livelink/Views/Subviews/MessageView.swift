@@ -21,16 +21,18 @@ struct MessageView: View {
                     .onTapGesture {
                         loadUserProfile(username: message.senderId)
                     }
-                Spacer()
             }
+            
             Text(message.content)
                 .font(.body)
                 .foregroundColor(.black)
+                .fixedSize(horizontal: false, vertical: true)  // Verhindert horizontales Dehnen, passt sich aber vertikal an
         }
         .padding()
         .background(Color.white)
         .cornerRadius(10)
         .shadow(radius: 5)
+        .frame(maxWidth: .infinity, alignment: .leading)  // Maximal die Breite des Textes einnehmen, nicht mehr
     }
     
     private func loadUserProfile(username: String) {

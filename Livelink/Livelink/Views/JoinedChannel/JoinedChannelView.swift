@@ -63,7 +63,7 @@ struct JoinedChannelView: View {
                                 .foregroundColor(.white)
                         }
                     }
-                    .frame(maxWidth: .infinity)  // Sorgt dafür, dass die HStack die gesamte Breite einnimmt
+                    .frame(maxWidth: .infinity)
                     .padding()
                     .background(Color.black.opacity(0.5))
                     
@@ -110,13 +110,11 @@ struct JoinedChannelView: View {
                 }
             }
             .onAppear {
-                print("JoinedChannelView appeared for \(channel.name)")
                 Task {
                     await joinChannelAndFetchMessages()
                 }
             }
             .onDisappear {
-                print("Leaving channel: \(channel.name)")
                 channelsViewModel.onChannelLeave(username: userDatasViewModel.userData!.username)
             }
         }
