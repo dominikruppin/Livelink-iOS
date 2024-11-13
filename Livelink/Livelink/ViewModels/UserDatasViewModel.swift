@@ -8,6 +8,7 @@
 import Firebase
 import FirebaseStorage
 import FirebaseFirestore
+import FirebaseAuth
 import SwiftUICore
 
 // Verwaltet die UserDaten des eingeloggten Nutzers und der aufgerufenen Profile
@@ -67,6 +68,59 @@ class UserDatasViewModel: ObservableObject {
         }
     }
     
+    // Fügt einen Nutzer zu den "letzten Profilbesuchern" hinzu
+    func addProfileVisitor(visitedUser: UserData, visitor: ProfileVisitor) {
+        // Aktuelle Liste der Profilbesucher aus dem userData des aufgerufenen Nutzers laden
+        var updatedProfileVisitors = visitedUser.recentProfileVisitors
+
+        // Prüfen, ob der aufrufende Nutzer (visitor) bereits in der Liste vorhanden ist
+        if let existingVisitorIndex = updatedProfileVisitors.firstIndex(where: { $0.username == visitor.username }) {
+            // Falls vorhanden, entfernen, um später wieder hinzugefügt zu werden
+            updatedProfileVisitors.remove(at: existingVisitorIndex)
+        }
+
+        // Hinzufügen des aufrufenden Nutzers (visitor) an die vorderste Position der Liste
+        updatedProfileVisitors.insert(visitor, at: 0)
+
+        // Falls die Liste mehr als 30 Besucher enthält, den ältesten entfernen
+        if updatedProfileVisitors.count > 30 {
+            updatedProfileVisitors.removeLast()
+        }
+
+        // Umwandeln in Dictionary
+        let updatedProfileVisitorsDicts = updatedProfileVisitors.map { $0.toDictionary() }
+
+        // Updates für das UserData
+        let updates: [String: Any] = ["recentProfileVisitors": updatedProfileVisitorsDicts]
+
+        // Profil des Besuchten Nutzers in der Datenbank aktualisieren
+        usersCollectionReference
+            .whereField("usernameLowercase", isEqualTo: visitedUser.usernameLowercase)
+            .getDocuments { snapshot, error in
+                if let error = error {
+                    print("Fehler beim Suchen des Nutzers: \(error.localizedDescription)")
+                    return
+                }
+
+                guard let document = snapshot?.documents.first else {
+                    print("Nutzer mit dem Namen \(visitedUser.usernameLowercase) nicht gefunden.")
+                    return
+                }
+
+                let userDocumentRef = document.reference
+
+                // Profilbesucher in den UserData updaten
+                userDocumentRef.updateData(updates) { error in
+                    if let error = error {
+                        print("Fehler beim Hinzufügen des Profilbesuchers: \(error.localizedDescription)")
+                    } else {
+                        print("Profilbesucher erfolgreich hinzugefügt.")
+                    }
+                }
+            }
+    }
+
+    
     // Funktion zum laden der Profiluserdaten anderer Nutzer
     func loadUserDataByUsername(username: String) {
         let lowercaseUsername = username.lowercased()
@@ -90,9 +144,15 @@ class UserDatasViewModel: ObservableObject {
                 self?.profileUserData = data
                 self?.showProfilePopup = true
                 print("Benutzerdaten für \(username) erfolgreich geladen: \(data)")
+
+                // Füge den aufrufenden Nutzer als Profilbesucher hinzu
+                if let currentUser = self?.userData, currentUser.username != data.username {
+                    let visitor = ProfileVisitor(username: currentUser.username, profilePicURL: currentUser.profilePicURL)
+                    self?.addProfileVisitor(visitedUser: data, visitor: visitor)
+                }
             }
     }
-    
+
     // Wird beim schließen eines Profiles aufgerufen um den Boolean zurück zu setzen
     func closeProfilePopup() {
         showProfilePopup = false

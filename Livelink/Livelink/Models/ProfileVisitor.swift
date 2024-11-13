@@ -9,4 +9,11 @@
 struct ProfileVisitor: Codable {
     var username: String = ""
     var profilePicURL: String = ""
+    
+    func toDictionary() -> [String: Any] {
+            return [
+                "username": username,
+                "profilePicURL": profilePicURL
+            ]
+        }
 }
