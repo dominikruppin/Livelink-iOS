@@ -11,7 +11,7 @@ import SwiftUI
 // TODO: USERLISTE
 struct JoinedChannelView: View {
     @EnvironmentObject var channelsViewModel: ChannelsViewModel
-    @EnvironmentObject var userDatasViewModel: UserDatasViewModel
+    @EnvironmentObject var userViewModel: UserViewModel
     @State private var messageContent = ""
     var channel: Channel
     @Binding var isChannelActive: Bool
@@ -116,11 +116,11 @@ struct JoinedChannelView: View {
                 }
             }
             .onDisappear {
-                channelsViewModel.onChannelLeave(username: userDatasViewModel.userData!.username)
+                channelsViewModel.onChannelLeave(username: userViewModel.userData!.username)
             }
             // Sheet für das Profil-Popup
-            .sheet(isPresented: $userDatasViewModel.showProfilePopup) {
-                if let profileData = userDatasViewModel.profileUserData {
+            .sheet(isPresented: $userViewModel.showProfilePopup) {
+                if let profileData = userViewModel.profileUserData {
                     ProfileViewPopup(profile: profileData)
                         .background(
                             Image("background")
@@ -141,7 +141,7 @@ struct JoinedChannelView: View {
     
     private func sendMessage() {
         guard !messageContent.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
-        let message = Message(senderId: userDatasViewModel.userData!.username, content: messageContent)
+        let message = Message(senderId: userViewModel.userData!.username, content: messageContent)
         channelsViewModel.sendMessage(message: message)
         messageContent = ""
     }

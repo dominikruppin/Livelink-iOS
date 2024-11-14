@@ -12,37 +12,37 @@ import FirebaseAuth
 @main
 struct LivelinkApp: App {
     // Globale Instanzen welche an die Views weitergegeben werden
-    @StateObject private var userDatasViewModel = UserDatasViewModel()
+    //@StateObject private var userDatasViewModel = UserDatasViewModel()
     @StateObject private var channelsViewModel = ChannelsViewModel()
+    //@StateObject private var authViewModel = AuthViewModel()
+    @StateObject private var userViewModel = UserViewModel()
+    
     
     init() {
             FirebaseConfiguration.shared.setLoggerLevel(.min)
             FirebaseApp.configure()
-        }
+    }
 
     var body: some Scene {
-        WindowGroup {
-            @StateObject var authViewModel = AuthViewModel(userDataViewModel: userDatasViewModel)
-            
+        WindowGroup {            
             // AuthViewModel mit userDatasViewModel
-            if authViewModel.currentUser != nil {
-                if userDatasViewModel.isLoadingUserData {
+            if userViewModel.currentUser != nil {
+                if userViewModel.isLoadingUserData {
                     LoadingView()
-                        .environmentObject(userDatasViewModel)
+                        .environmentObject(userViewModel)
                         .onAppear {
                             if let uid = Auth.auth().currentUser?.uid {
-                                userDatasViewModel.loadUserData(for: uid)
+                                userViewModel.loadUserData(for: uid)
                             }
                         }
                 } else {
                     OverView()
-                        .environmentObject(userDatasViewModel)
+                        .environmentObject(userViewModel)
                         .environmentObject(channelsViewModel)
-                        .environmentObject(authViewModel)
                 }
             } else {
                 LoginView()
-                    .environmentObject(authViewModel)
+                    .environmentObject(userViewModel)
             }
         }
     }

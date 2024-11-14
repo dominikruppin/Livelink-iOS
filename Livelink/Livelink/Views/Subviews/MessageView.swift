@@ -10,7 +10,7 @@ import SwiftUI
 // Repräsentiert die Anzeige einer Chatnachricht (Subview)
 struct MessageView: View {
     var message: Message
-    @EnvironmentObject var userDatasViewModel: UserDatasViewModel
+    @EnvironmentObject var userViewModel: UserViewModel
     
     var body: some View {
         VStack(alignment: .leading) {
@@ -36,7 +36,7 @@ struct MessageView: View {
     }
     
     private func loadUserProfile(username: String) {
-        userDatasViewModel.loadUserDataByUsername(username: username)
-        userDatasViewModel.showProfilePopup = true
+        userViewModel.loadUserDataByUsername(username: username)
+        userViewModel.showProfilePopup = true
     }
 }

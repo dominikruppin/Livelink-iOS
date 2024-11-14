@@ -24,7 +24,7 @@ struct WebView: UIViewRepresentable {
 // Zeigt das Profil an
 struct ProfileViewPopup: View {
     var profile: UserData
-    @EnvironmentObject var userDatasViewModel: UserDatasViewModel
+    @EnvironmentObject var userViewModel: UserViewModel
     
     var body: some View {
         GeometryReader { geometry in
@@ -119,7 +119,7 @@ struct ProfileViewPopup: View {
                 }
                 
                 Button(action: {
-                    userDatasViewModel.closeProfilePopup()
+                    userViewModel.closeProfilePopup()
                 }) {
                     Text("Schließen")
                         .padding()
@@ -213,5 +213,5 @@ struct ProfileInfoView: View {
 
 #Preview {
     ProfileViewPopup(profile: UserData(username: "Max Mustermann", profilePicURL: "https://example.com/profile.jpg", name: "Max Mustermann", age: "28", birthday: "1996-05-10", gender: "Männlich", relationshipStatus: "Verheiratet", country: "Deutschland", state: "Berlin", city: "Berlin", wildspace: "Das ist mein Wildspace. [LINK]https://example.com/image.jpg Mehr Text hier."))
-        .environmentObject(UserDatasViewModel())
+        .environmentObject(UserViewModel())
 }

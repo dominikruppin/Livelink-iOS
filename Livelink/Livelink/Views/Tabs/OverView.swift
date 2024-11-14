@@ -9,8 +9,8 @@ import SwiftUI
 
 // Repräsentiert die Anzeige der Tabview samt zugehöriger Views
 struct OverView: View {
-    @EnvironmentObject private var userDatasViewModel: UserDatasViewModel
-    @EnvironmentObject private var authViewModel: AuthViewModel
+    //@EnvironmentObject private var userDatasViewModel: UserDatasViewModel
+    @EnvironmentObject private var userViewModel: UserViewModel
     
     // Flag für gesperrten Nutzer
     @State private var isUserLocked = false
@@ -23,10 +23,10 @@ struct OverView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .onAppear {
             // Überprüfe, ob der Nutzer gesperrt ist
-            if let currentUser = userDatasViewModel.userData, currentUser.lockInfo != nil {
+            if let currentUser = userViewModel.userData, currentUser.lockInfo != nil {
                 // Setze das Flag für gesperrten Nutzer
                 isUserLocked = true
-                authViewModel.logout()
+                userViewModel.logout()
             }
         }
         .alert(isPresented: $isUserLocked) {

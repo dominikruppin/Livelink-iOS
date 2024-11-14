@@ -4,7 +4,7 @@ import SwiftUIX
 // Anzeigen der HomeView, also Übersicht bei eingeloggten Nutzer
 // Beinhaltet Uhrzeitabhängig Begrüßung, Searchbar zur Nutzersuche, Anzeige der letzten Profilbesucher sowie besuchten Channel
 struct HomeView: View {
-    @EnvironmentObject var userDatasViewModel: UserDatasViewModel
+    @EnvironmentObject var userViewModel: UserViewModel
     @EnvironmentObject var channelsViewModel: ChannelsViewModel
     @State private var searchQuery: String = ""
     @Binding var isChannelActive: Bool
@@ -19,7 +19,7 @@ struct HomeView: View {
                     .edgesIgnoringSafeArea(.all)
                 
                 VStack {
-                    Text("\(greetingMessage()), \(userDatasViewModel.userData?.username ?? "Gast")!")
+                    Text("\(greetingMessage()), \(userViewModel.userData?.username ?? "Gast")!")
                         .font(.largeTitle)
                         .fontWeight(.bold)
                         .foregroundColor(.white)
@@ -35,19 +35,19 @@ struct HomeView: View {
                         .shadow(radius: 5)
                     
                     // Dropdown für Suchergebnisse
-                    if !searchQuery.isEmpty && !userDatasViewModel.searchResults.isEmpty {
+                    if !searchQuery.isEmpty && !userViewModel.searchResults.isEmpty {
                         VStack(spacing: 0) {
                             ScrollView {
                                 VStack(spacing: 0) {
-                                    ForEach(userDatasViewModel.searchResults, id: \.username) { user in
+                                    ForEach(userViewModel.searchResults, id: \.username) { user in
                                         Text(user.username)
                                             .padding(.bottom)
                                             .cornerRadius(8)
                                             .padding(.horizontal, 16)
                                             .foregroundColor(.black)
                                             .onTapGesture {
-                                                userDatasViewModel.loadUserDataByUsername(username: user.username)
-                                                userDatasViewModel.showProfilePopup = true
+                                                userViewModel.loadUserDataByUsername(username: user.username)
+                                                userViewModel.showProfilePopup = true
                                             }
                                     }
                                 }
@@ -60,7 +60,7 @@ struct HomeView: View {
                     }
                     
                     // Profilbesucher anzeigen
-                    if let userData = userDatasViewModel.userData, !userData.recentProfileVisitors.isEmpty {
+                    if let userData = userViewModel.userData, !userData.recentProfileVisitors.isEmpty {
                         Text("Profilbesucher:")
                             .font(.headline)
                             .foregroundColor(.white)
@@ -72,8 +72,8 @@ struct HomeView: View {
                                 ForEach(userData.recentProfileVisitors, id: \.username) { visitor in
                                     ProfileVisitorView(visitor: visitor)
                                         .onTapGesture {
-                                            userDatasViewModel.loadUserDataByUsername(username: visitor.username)
-                                            userDatasViewModel.showProfilePopup = true
+                                            userViewModel.loadUserDataByUsername(username: visitor.username)
+                                            userViewModel.showProfilePopup = true
                                         }
                                 }
                                 Spacer(minLength: 16)
@@ -83,7 +83,7 @@ struct HomeView: View {
                     }
                     
                     // Letzte Channel anzeigen
-                    if let userData = userDatasViewModel.userData, !userData.lastChannels.isEmpty {
+                    if let userData = userViewModel.userData, !userData.lastChannels.isEmpty {
                         Text("Letzte Channel:")
                             .font(.headline)
                             .foregroundColor(.white)
@@ -114,19 +114,19 @@ struct HomeView: View {
                 .frame(maxHeight: .infinity, alignment: .top)
             }
             .onAppear() {
-                if let data = userDatasViewModel.userData {
+                if let data = userViewModel.userData {
                     print("HomeViewData: \(data)")
                 } else {
                     print("Keine Daten")
                 }
             }
             .onChange(of: searchQuery) { newValue in
-                userDatasViewModel.searchUsers(query: newValue)
+                userViewModel.searchUsers(query: newValue)
             }
             
             // Sheet für das Profil-Popup
-            .sheet(isPresented: $userDatasViewModel.showProfilePopup) {
-                if let profileData = userDatasViewModel.profileUserData {
+            .sheet(isPresented: $userViewModel.showProfilePopup) {
+                if let profileData = userViewModel.profileUserData {
                     ProfileViewPopup(profile: profileData)
                         .background(
                             Image("background")

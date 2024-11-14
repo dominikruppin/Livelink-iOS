@@ -23,11 +23,11 @@ struct EditProfileView: View {
     @State private var profileImage: UIImage?
     @State private var isImagePickerPresented = false
     @StateObject var zipCodeViewModel = ZipCodeViewModel()
-    @EnvironmentObject var userDatasViewModel: UserDatasViewModel
-    @EnvironmentObject var authViewModel: AuthViewModel
+    //@EnvironmentObject var userDatasViewModel: UserDatasViewModel
+    @EnvironmentObject var userViewModel: UserViewModel
 
     private var canEdit: Bool {
-        userDatasViewModel.userData != nil
+        userViewModel.userData != nil
     }
 
     @available(iOS 16.0, *)
@@ -41,7 +41,7 @@ struct EditProfileView: View {
 
                 VStack {
                     HStack {
-                        AsyncImage(url: URL(string: userDatasViewModel.userData?.profilePicURL ?? "")) { image in
+                        AsyncImage(url: URL(string: userViewModel.userData?.profilePicURL ?? "")) { image in
                             image
                                 .resizable()
                                 .aspectRatio(contentMode: .fill)
@@ -78,7 +78,7 @@ struct EditProfileView: View {
                         .listRowInsets(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 0))
 
                         Section(header: Text("Geburtsdatum")) {
-                            if let userBirthday = userDatasViewModel.userData?.birthday {
+                            if let userBirthday = userViewModel.userData?.birthday {
                                 if let birthdayDate = stringToDate(userBirthday) {
                                     Text("\(formattedDate(birthdayDate))")
                                         .font(.headline)
@@ -167,7 +167,7 @@ struct EditProfileView: View {
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
                         Button(action: {
-                            authViewModel.logout()
+                            userViewModel.logout()
                         }) {
                             Text("Logout")
                                 .font(.headline)
@@ -186,7 +186,7 @@ struct EditProfileView: View {
         }
         .sheet(isPresented: $isImagePickerPresented, onDismiss: {
             if let image = profileImage {
-                userDatasViewModel.uploadProfileImage(image: image)
+                userViewModel.uploadProfileImage(image: image)
             }
         }) {
             ImagePicker(selectedImage: $profileImage, isPresented: $isImagePickerPresented)
@@ -194,7 +194,7 @@ struct EditProfileView: View {
     }
 
     private func loadUserData() {
-        if let userData = userDatasViewModel.userData {
+        if let userData = userViewModel.userData {
             name = userData.name
             age = userData.age
             birthday = stringToDate(userData.birthday) ?? Date()
@@ -251,7 +251,7 @@ struct EditProfileView: View {
                     "city": city ?? ""
                 ]
 
-                self.userDatasViewModel.updateUserData(uid: self.authViewModel.currentUser!.uid, newData: newData)
+                self.userViewModel.updateUserData(uid: userViewModel.currentUser!.uid, newData: newData)
             }
         } else {
             let newData: [String: Any] = [
@@ -267,7 +267,7 @@ struct EditProfileView: View {
                 "city": ""
             ]
             
-            userDatasViewModel.updateUserData(uid: authViewModel.currentUser?.uid ?? "<default value>", newData: newData)
+            userViewModel.updateUserData(uid: userViewModel.currentUser?.uid ?? "<default value>", newData: newData)
         }
     }
 }

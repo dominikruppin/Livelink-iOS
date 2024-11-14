@@ -9,7 +9,7 @@ import SwiftUI
 
 // View für den Login
 struct LoginView: View {
-    @EnvironmentObject var authViewModel: AuthViewModel
+    @EnvironmentObject var userViewModel: UserViewModel
     @State private var username: String = "" // Benutzername speichern
     @State private var password: String = "" // Passwort speichern
     @State private var loginError: String? // Fehlernachricht
@@ -72,7 +72,7 @@ struct LoginView: View {
                     .padding(.horizontal)
 
                     // Navigationslink zur Registrierung
-                    NavigationLink(destination: SignUpView().environmentObject(authViewModel)) {
+                    NavigationLink(destination: SignUpView().environmentObject(userViewModel)) {
                         Text("Noch kein Konto? Registriere dich hier.")
                             .foregroundColor(Color.white)
                             .padding()
@@ -91,7 +91,7 @@ struct LoginView: View {
 
     private func login() {
         // E-Mail aus dem Benutzernamen abrufen
-        authViewModel.getMailFromUsername(username: username) { email in
+        userViewModel.getMailFromUsername(username: username) { email in
             guard let email = email else {
                 loginError = "Benutzername nicht gefunden."
                 return
@@ -99,7 +99,7 @@ struct LoginView: View {
             print(email)
 
             // Anmelden mit der E-Mail-Adresse
-            authViewModel.login(email: email, password: password) { success in
+            userViewModel.login(email: email, password: password) { success in
                 if success {
                     // Login erfolgreich
                     print("Benutzer erfolgreich eingeloggt!")
