@@ -16,6 +16,8 @@ struct JoinedChannelView: View {
     var channel: Channel
     @Binding var isChannelActive: Bool
     @Binding var selectedChannel: Channel?
+    // Für Fehlermeldungen wenn ein / Befehl nicht existiert
+    @State private var commandStatusMessage: String?
     
     var body: some View {
         GeometryReader { geometry in
@@ -55,17 +57,28 @@ struct JoinedChannelView: View {
                         Spacer()
                         
                         Button(action: {
-                            print("More options pressed")
+                            print("Userliste hier rein")
                         }) {
-                            Image(systemName: "ellipsis.circle.fill")
+                            Image(systemName: "person.2.fill")
                                 .resizable()
-                                .frame(width: 30, height: 30)
+                                .frame(width: 25, height: 25)
                                 .foregroundColor(.white)
                         }
                     }
                     .frame(maxWidth: .infinity)
                     .padding()
                     .background(Color.black.opacity(0.5))
+                    
+                    // Statusmeldung für unbekannte Befehle
+                    if let commandStatusMessage = self.commandStatusMessage {
+                        Text(commandStatusMessage)
+                            .foregroundColor(.red)
+                            .padding()
+                            .background(Color.white)
+                            .cornerRadius(10)
+                            .transition(.opacity)
+                            .animation(.easeOut(duration: 0.3), value: commandStatusMessage)
+                    }
                     
                     // Chat Content
                     ScrollViewReader { scrollView in
@@ -134,16 +147,52 @@ struct JoinedChannelView: View {
         }
     }
     
+    
     // Funktion um den Channel zu betreten und das abrufen der Nachrichten zu starten
     private func joinChannelAndFetchMessages() async {
         await channelsViewModel.joinChannel(channel: channel)
         channelsViewModel.fetchMessages()
     }
     
-    // Funktion zum senden der Nachricht an den Channel
+    // Funktion zum Senden der Nachricht an den Channel
     private func sendMessage() {
         guard !messageContent.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
-        channelsViewModel.handleSendMessage(username: userViewModel.userData!.username, content: messageContent)
-        messageContent = ""
+        if messageContent.starts(with: "/") {
+            handleCommands(command: messageContent)
+        } else {
+            channelsViewModel.handleSendMessage(username: userViewModel.userData!.username, content: messageContent)
+        }
+        messageContent = ""  // Eingabefeld leeren
+    }
+    
+    private func handleCommands(command: String) {
+        let commandParts = command.split(separator: " ", maxSplits: 1, omittingEmptySubsequences: true)
+        let commandString = String(commandParts.first ?? "")
+        let commandText = commandParts.count > 1 ? String(commandParts[1]) : ""
+        let commandEnum = Command(commandString: commandString)
+        
+        switch commandEnum {
+            case .userlock:
+                if userViewModel.userData?.status ?? 0 < 3 {
+                    showCommandMessage(message: "Du besitzt nicht die notwendigen Rechte.")
+                } else {
+                    userViewModel.lockUser(command: commandText) { message in
+                        showCommandMessage(message: message)
+                    }
+                }
+            case .profil:
+                userViewModel.loadUserDataByUsername(username: commandText)
+            case .unknown:
+                showCommandMessage(message: "Unbekannter Befehl. Bitte probiere es erneut.")
+            }
+    }
+    
+    private func showCommandMessage(message: String) {
+        self.commandStatusMessage = message
+        
+        // Nach 3 Sekunden die Statusnachricht wieder entfernen
+        DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+            self.commandStatusMessage = nil
+        }
     }
 }

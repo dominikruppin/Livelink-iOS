@@ -133,6 +133,127 @@ class UserViewModel: ObservableObject {
         }
     }
     
+    // Funktion um einen Nutzer zu sperren oder zu entsperren
+    func lockUser(command: String, completion: @escaping (String) -> Void) {
+        // Splitte den Befehl an Leerzeichen
+        let parts = command.split(separator: ":")
+
+        // Überprüfe, ob der Befehl korrekt formatiert ist
+        guard parts.count >= 2 else {
+            completion("Ungültiges Format des Lock-Befehls.")
+            return
+        }
+
+        // Der erste Teil ist der Username
+        let usernameAndReason = parts[0].trimmingCharacters(in: .whitespaces)
+
+        // Wenn der Befehl mit '!' beginnt, Nutzer entsperren
+        if usernameAndReason.hasPrefix("!") {
+            let username = usernameAndReason.dropFirst().trimmingCharacters(in: .whitespaces)
+            unlockUser(username: String(username), isSystem: false, completion: completion)
+            return
+        }
+
+        // Der zweite Teil ist die Begründung
+        let reason = parts[1].trimmingCharacters(in: .whitespaces)
+
+        // Der dritte Teil ist die Dauer oder '!' für permanent
+        let durationOrPermanent = parts.count > 2 ? parts[2].trimmingCharacters(in: .whitespaces) : "!"
+
+        // Sperrlänge (zeitlich oder permanent)
+        let expirationTimestamp: Int64
+        if durationOrPermanent == "!" {
+            expirationTimestamp = -1 // Permanent: Kein Ablaufdatum
+        } else if let days = Int(durationOrPermanent), days >= 1 && days <= 365 {
+            let calendar = Calendar.current
+            let expirationDate = calendar.date(byAdding: .day, value: days, to: Date())
+            expirationTimestamp = Int64(expirationDate!.timeIntervalSince1970)
+        } else {
+            completion("Ungültige Angabe für die Dauer.")
+            return
+        }
+
+        // Suchen nach dem Nutzer anhand des Usernamens
+        usersCollectionReference
+            .whereField("usernameLowercase", isEqualTo: usernameAndReason.lowercased())
+            .getDocuments { snapshot, error in
+                if let error = error {
+                    completion("Fehler beim Suchen des Nutzers: \(error.localizedDescription)")
+                    return
+                }
+
+                guard let documents = snapshot?.documents, !documents.isEmpty else {
+                    completion("Nutzer mit Username '\(usernameAndReason)' nicht gefunden.")
+                    return
+                }
+
+                let documentSnapshot = documents.first!
+                let userDocumentRef = documentSnapshot.reference
+
+                // Sperrinformationen
+                let lockInfo: [String: Any] = [
+                    "lockedBy": self.userData!.username,
+                    "reason": reason,
+                    "expirationTimestamp": expirationTimestamp
+                ]
+
+                // Aktualisiere die User-Daten und füge Sperrinformationen hinzu
+                userDocumentRef.updateData(["lockInfo": lockInfo]) { error in
+                    if let error = error {
+                        completion("Fehler beim Sperren des Nutzers: \(error.localizedDescription)")
+                        return
+                    }
+
+                    // Erfolgreiches Sperren
+                    let formattedMessage: String
+                    if expirationTimestamp == -1 {
+                        formattedMessage = "Nutzer \(usernameAndReason) erfolgreich permanent gesperrt."
+                    } else {
+                        let expirationDate = Date(timeIntervalSince1970: TimeInterval(expirationTimestamp))
+                        let dateFormatter = DateFormatter()
+                        dateFormatter.dateStyle = .short
+                        formattedMessage = "Nutzer \(usernameAndReason) erfolgreich bis \(dateFormatter.string(from: expirationDate)) gesperrt."
+                    }
+
+                    completion(formattedMessage)
+                }
+            }
+    }
+
+    // Funktion um einen Nutzer zu entsperren
+    func unlockUser(username: String, isSystem: Bool, completion: @escaping (String) -> Void) {
+        // Suchen nach dem Nutzer anhand des Usernamens
+        usersCollectionReference
+            .whereField("usernameLowercase", isEqualTo: username.lowercased())
+            .getDocuments { snapshot, error in
+                if let error = error {
+                    completion("Fehler beim Suchen des Nutzers: \(error.localizedDescription)")
+                    return
+                }
+
+                guard let documents = snapshot?.documents, !documents.isEmpty else {
+                    completion("Nutzer mit Username '\(username)' nicht gefunden.")
+                    return
+                }
+
+                let documentSnapshot = documents.first!
+                let userDocumentRef = documentSnapshot.reference
+
+                // Entferne die Sperrinformationen
+                userDocumentRef.updateData(["lockInfo": FieldValue.delete()]) { error in
+                    if let error = error {
+                        completion("Fehler beim Entsperren des Nutzers: \(error.localizedDescription)")
+                        return
+                    }
+
+                    // Erfolgreiches Entsperren
+                    let message = isSystem ? "System hat den Nutzer \(username) entsperrt." : "Nutzer \(username) erfolgreich entsperrt."
+                    completion(message)
+                }
+            }
+    }
+
+    
     // Benutzerabmeldung
     func logout() {
         do {
