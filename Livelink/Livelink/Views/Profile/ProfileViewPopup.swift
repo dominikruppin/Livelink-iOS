@@ -30,6 +30,12 @@ struct ProfileViewPopup: View {
         GeometryReader { geometry in
             VStack(spacing: 20) {
                 VStack {
+                    // Überprüfe den Status des aktuellen Nutzers (mindestens Status 3)
+                    if userViewModel.userData?.status ?? 0 >= 3 {
+                        LockInfoView(profile: profile)
+                            .padding(.bottom)// Sperrinfo Subview
+                    }
+                    
                     // Profilbild
                     AsyncImage(url: URL(string: profile.profilePicURL)) { image in
                         image

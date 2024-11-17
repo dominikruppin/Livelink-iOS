@@ -165,6 +165,7 @@ struct JoinedChannelView: View {
         messageContent = ""  // Eingabefeld leeren
     }
     
+    // Funktion zum steuern von Chatbefehlen (/)
     private func handleCommands(command: String) {
         let commandParts = command.split(separator: " ", maxSplits: 1, omittingEmptySubsequences: true)
         let commandString = String(commandParts.first ?? "")
