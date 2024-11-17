@@ -32,7 +32,7 @@ struct OverView: View {
             } else {
                 let expirationDate = Date(timeIntervalSince1970: TimeInterval(expirationTimestamp))
                 let calendar = Calendar.current
-                let expirationDateNextDay = calendar.date(byAdding: .day, value: 1, to: expirationDate)!
+                _ = calendar.date(byAdding: .day, value: 1, to: expirationDate)!
 
                 let dateFormatter = DateFormatter()
                 dateFormatter.dateStyle = .short

@@ -13,15 +13,16 @@ struct JoinedChannelView: View {
     @EnvironmentObject var channelsViewModel: ChannelsViewModel
     @EnvironmentObject var userViewModel: UserViewModel
     @State private var messageContent = ""
+    @State private var isUserListVisible = false
     var channel: Channel
     @Binding var isChannelActive: Bool
     @Binding var selectedChannel: Channel?
-    // Für Fehlermeldungen wenn ein / Befehl nicht existiert
     @State private var commandStatusMessage: String?
-    
+
     var body: some View {
         GeometryReader { geometry in
             ZStack {
+                // Hintergrundbild laden
                 if let backgroundURL = channelsViewModel.currentChannel?.backgroundURL {
                     AsyncImage(url: URL(string: backgroundURL)) { image in
                         image
@@ -57,7 +58,7 @@ struct JoinedChannelView: View {
                         Spacer()
                         
                         Button(action: {
-                            print("Userliste hier rein")
+                            isUserListVisible.toggle()
                         }) {
                             Image(systemName: "person.2.fill")
                                 .resizable()
@@ -117,10 +118,21 @@ struct JoinedChannelView: View {
                                 .foregroundColor(.white)
                                 .cornerRadius(10)
                         }
-                        .frame(width: geometry.size.width * 0.25) // Breite für den  Senden Button
+                        .frame(width: geometry.size.width * 0.25) // Breite für den Senden Button
                     }
                     .padding(.horizontal, 4)
                     .frame(width: geometry.size.width * 0.95)
+                }
+                
+                // Benutzerliste einbinden
+                if isUserListVisible {
+                    UserListView(isUserListVisible: $isUserListVisible)
+                }
+            }
+            .onTapGesture {
+                // Wenn außerhalb der Benutzerliste geklickt wird, schließen wir die Liste
+                if isUserListVisible {
+                    isUserListVisible = false
                 }
             }
             .onAppear {
@@ -131,7 +143,6 @@ struct JoinedChannelView: View {
             .onDisappear {
                 channelsViewModel.onChannelLeave(username: userViewModel.userData!.username)
             }
-            // Sheet für das Profil-Popup
             .sheet(isPresented: $userViewModel.showProfilePopup) {
                 if let profileData = userViewModel.profileUserData {
                     ProfileViewPopup(profile: profileData)
