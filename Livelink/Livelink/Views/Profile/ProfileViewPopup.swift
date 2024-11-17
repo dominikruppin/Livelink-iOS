@@ -140,6 +140,7 @@ struct ProfileViewPopup: View {
         .ignoresSafeArea(.container, edges: .bottom)
     }
     
+    // Übersetzt den Userstatus vom Integer in Text (String)
     private func getStatusText(for status: Int) -> String {
         switch status {
         case 6:
@@ -153,6 +154,7 @@ struct ProfileViewPopup: View {
         }
     }
     
+    // Wenn keine Profilangaben geben wir false zurück
     private func isProfileEmpty() -> Bool {
         return profile.name.isEmpty &&
         profile.age.isEmpty &&

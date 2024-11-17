@@ -134,11 +134,13 @@ struct JoinedChannelView: View {
         }
     }
     
+    // Funktion um den Channel zu betreten und das abrufen der Nachrichten zu starten
     private func joinChannelAndFetchMessages() async {
         await channelsViewModel.joinChannel(channel: channel)
         channelsViewModel.fetchMessages()
     }
     
+    // Funktion zum senden der Nachricht an den Channel
     private func sendMessage() {
         guard !messageContent.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
         channelsViewModel.handleSendMessage(username: userViewModel.userData!.username, content: messageContent)

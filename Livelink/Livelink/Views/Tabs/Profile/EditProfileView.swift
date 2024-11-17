@@ -217,18 +217,21 @@ struct EditProfileView: View {
         }
     }
     
+    // Datumsobjekt in String umwandeln (DD.MM.YYYY)
     func formattedDate(_ date: Date) -> String {
         let formatter = DateFormatter()
         formatter.dateStyle = .long
         return formatter.string(from: date)
     }
     
+    // Geburtsdatum vom String ins Datumsobjekt umwandeln
     func stringToDate(_ dateString: String) -> Date? {
         let formatter = DateFormatter()
         formatter.dateStyle = .short
         return formatter.date(from: dateString)
     }
     
+    // Berechnen des Alters anhand des Geburtsdatums
     func calculateAge(from dateOfBirth: Date) -> Int {
         let calendar = Calendar.current
         let today = Date()
@@ -236,6 +239,7 @@ struct EditProfileView: View {
         return ageComponents.year ?? 0
     }
     
+    // Wird beim speichern aufgerufen, prüft ob wir noch die openPLZ API Anfragen müssen oder nicht. Ruft entweder direkt die Speichern Funktion auf oder wartet auf API Antwort und falls diese gültig ist, dann die Speichern Funktion auf
     func saveProfileData() {
         // Wenn Postleitzahl und Land angegeben sind laden wir infos über openPLZ API
         if !zipCode.isEmpty, country != "Keine Angabe" {
@@ -268,6 +272,7 @@ struct EditProfileView: View {
         }
     }
     
+    // Funktion um die Profildaten in Firebase dann auch zu speichern
     private func saveProfileDataToDatabase() {
         let formatter = DateFormatter()
         formatter.dateStyle = .short
