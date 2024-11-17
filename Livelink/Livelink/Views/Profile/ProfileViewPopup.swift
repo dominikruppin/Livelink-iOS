@@ -172,54 +172,33 @@ struct ProfileViewPopup: View {
         profile.state.isEmpty &&
         profile.wildspace.isEmpty
     }
+}
     
-    // Funktion, die das erste Bild ersetzt und alle anderen entfernt
-    // TODO! FUNKTIONIERT NOCH NICHT.
+    // Wandelt den Link-Tag in der Wildspace zu HTML Code um um das Bild anzuzeigen
     private func transformWildspace(_ content: String) -> String {
-        // Finde alle [LINK] Tags mit einer URL
-        let pattern = #"\[LINK\](http[^\s]+)"# // Sucht nach [LINK] gefolgt von einer URL
+        // alle [URL] Tags mit einer URL suchen
+        let pattern = #"\[([^\]]+)\]"#
         let regex = try? NSRegularExpression(pattern: pattern, options: .caseInsensitive)
         
-        // Falls ein Link gefunden wird, ersetze ihn durch ein <img>-Tag
+        // Falls ein Link gefunden wird
         if let match = regex?.firstMatch(in: content, options: [], range: NSRange(location: 0, length: content.count)) {
-            let linkRange = match.range(at: 1) // Die URL befindet sich im ersten Capture Group
+            let linkRange = match.range(at: 1)
             
             if let linkRange = Range(linkRange, in: content) {
                 let imageURL = String(content[linkRange])
                 let imageTag = "<img src=\"\(imageURL)\" />"
                 
-                // Ersetze das erste Vorkommen des Links durch das <img>-Tag und entferne alle anderen [LINK] Tags
-                var updatedContent = content.replacingOccurrences(of: "[LINK]\(imageURL)", with: imageTag)
+                // Ersetzen Link durch Imagetag ersetzen
+                var updatedContent = content.replacingOccurrences(of: "[\(imageURL)]", with: imageTag)
                 
-                // Entferne alle anderen [LINK] Tags
-                updatedContent = updatedContent.replacingOccurrences(of: "\\[LINK\\][^\\s]+", with: "", options: .regularExpression)
-                
+                // Entferne alle anderen [Link] Tags (Somit nur 1 Bild erlaubt)
+                updatedContent = updatedContent.replacingOccurrences(of: "\\[[^\\]]+\\]", with: "", options: .regularExpression)
                 return updatedContent
             }
         }
-        
         return content
     }
-}
 
-struct ProfileInfoView: View {
-    var label: String
-    var value: String
-    
-    var body: some View {
-        HStack {
-            Text(label)
-                .font(.headline)
-                .foregroundColor(.gray)
-                .frame(width: 120, alignment: .leading)
-            Text(value)
-                .font(.body)
-                .foregroundColor(.black)
-            Spacer()
-        }
-        .padding(.vertical, 4)
-    }
-}
 
 #Preview {
     ProfileViewPopup(profile: UserData(username: "Max Mustermann", profilePicURL: "https://example.com/profile.jpg", name: "Max Mustermann", age: "28", birthday: "1996-05-10", gender: "Männlich", relationshipStatus: "Verheiratet", country: "Deutschland", state: "Berlin", city: "Berlin", wildspace: "Das ist mein Wildspace. [LINK]https://example.com/image.jpg Mehr Text hier."))
