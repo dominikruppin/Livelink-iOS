@@ -19,6 +19,7 @@ class ChannelsViewModel: ObservableObject {
     // Speichert die Liste der OnlineUser
     @Published var onlineUsers = [OnlineUser]()
     private var database = FirebaseManager.shared.database
+    private let botViewModel = BotViewModel()
     
     // Direkt beim starten der App holen wir uns die aktuelle Channelliste
     init() {
@@ -89,129 +90,161 @@ class ChannelsViewModel: ObservableObject {
             print("Fehler beim Hinzufügen des Channels zu lastChannels: \(error)")
         }
     }
-
+    
     // Funktion zum abrufen der Nachrichten in einem Channel (samt Echtzeitupdate durch Snapshotlistener)
     func fetchMessages() {
         print("Fetch Messages aufgerufen")
         guard let channelID = currentChannel?.channelID else { return }
         guard let joinTimestamp = currentChannel?.timestamp else { return }
-
-            // Neue Nachrichten mit einem höheren Timestamp als der Beitritts-Timestamp laden
-            database.collection("channels")
-                .document(channelID)
-                .collection("messages")
-                .order(by: "timestamp", descending: false)
-                .whereField("timestamp", isGreaterThan: joinTimestamp)
-                .addSnapshotListener { snapshot, error in
-                    if let error = error {
-                        print("Error fetching messages: \(error)")
-                        return
-                    }
-
-                    guard let documents = snapshot?.documents else {
-                        print("No messages found")
-                        return
-                    }
-
-                    // Nachrichten aus dem Snapshot extrahieren
-                    self.messages = documents.compactMap { document in
-                        try? document.data(as: Message.self)
-                    }
-
-                    print("Loaded messages: \(self.messages)")
-                }
-        }
-
-    
-    // Funktion zum Senden einer Nachricht an einen Channel
-    func sendMessage(message: Message) {
-        guard let channelID = currentChannel?.channelID else { return }
         
-        let messageData: [String: Any] = [
-            "senderId": message.senderId,
-            "content": message.content,
-            "timestamp": FieldValue.serverTimestamp()
-        ]
-        
-        database.collection("channels").document(channelID).collection("messages").addDocument(data: messageData) { error in
-            if let error = error {
-                print("Error sending message: \(error)")
-            } else {
-                print("Message sent successfully.")
-            }
-        }
-    }
-    
-    // Funktion zum Abrufen der Online User eines Channels
-    func fetchOnlineUsersInChannel() {
-        guard let channelID = currentChannel?.channelID else { return }
-        
-        database.collection("channels").document(channelID).collection("onlineUsers")
-            .getDocuments { querySnapshot, error in
+        // Neue Nachrichten mit einem höheren Timestamp als der Beitritts-Timestamp laden
+        database.collection("channels")
+            .document(channelID)
+            .collection("messages")
+            .order(by: "timestamp", descending: false)
+            .whereField("timestamp", isGreaterThan: joinTimestamp)
+            .addSnapshotListener { snapshot, error in
                 if let error = error {
-                    print("Error fetching online users: \(error)")
+                    print("Error fetching messages: \(error)")
                     return
                 }
                 
-                self.onlineUsers = querySnapshot?.documents.compactMap { document in
-                    try? document.data(as: OnlineUser.self)
-                } ?? []
-                print("Fetched online users: \(self.onlineUsers)")
+                guard let documents = snapshot?.documents else {
+                    print("No messages found")
+                    return
+                }
+                
+                // Nachrichten aus dem Snapshot extrahieren
+                self.messages = documents.compactMap { document in
+                    try? document.data(as: Message.self)
+                }
+                
+                print("Loaded messages: \(self.messages)")
             }
     }
     
-    // Funktion zum Hinzufügen oder Aktualisieren von Online User Daten
-    // TODO
-    func addOrUpdateOnlineUserData(username: String, age: String, gender: String, profilePic: String, status: Int) {
-        guard let channelID = currentChannel?.channelID else { return }
+    func handleSendMessage(username: String, content: String) {
         
-        let onlineUserData: [String: Any] = [
-            "username": username,
-            "age": age,
-            "gender": gender,
-            "profilePic": profilePic,
-            "status": status,
-            "timestamp": FieldValue.serverTimestamp()
-        ]
-        
-        database.collection("channels").document(channelID).collection("onlineUsers").document(username)
-            .setData(onlineUserData) { error in
-                if let error = error {
-                    print("Error updating user data: \(error)")
-                } else {
-                    print("User data updated for \(username)")
-                    self.fetchOnlineUsersInChannel()
+        let message = Message(senderId: username, content: content)
+        DispatchQueue.main.async {
+            self.messages.append(message)
+        }
+        // Prüfen, ob die Nachricht mit "Paul" beginnt
+        if content.lowercased().hasPrefix("paul") {
+            let commandText = content.dropFirst(4).trimmingCharacters(in: .whitespacesAndNewlines)
+            let botRequest = BotRequest(
+                model: "llama-3.1-sonar-small-128k-chat",
+                messages: [
+                    BotMessage(role: "system", content: "Du bist ein deutscher Chatbot namens Paul. Antworte nur auf Deutsch."),
+                    BotMessage(role: "user", content: commandText)
+                ]
+            )
+            
+            // Bot-Nachricht senden
+            botViewModel.sendMessage(apiKey: apiKey, request: botRequest) { botResponse in
+                if let botResponse = botResponse {
+                    let botMessage = Message(
+                        senderId: "Paul",
+                        content: botResponse.choices.first?.message.content ?? "Ich mache aktuell eine Pause."
+                    )
+                    DispatchQueue.main.async {
+                        self.messages.append(botMessage)
+                    }
                 }
             }
+        }
     }
-    
-    // Funktion zum Aktualisieren des eigenen Timestamps in den Online Usern
-    // TODO
-    func updateOnlineUserTimestamp(username: String) {
-        guard let channelID = currentChannel?.channelID else { return }
         
-        database.collection("channels").document(channelID).collection("onlineUsers").document(username)
-            .updateData(["timestamp": FieldValue.serverTimestamp()]) { error in
+        
+        // Funktion zum Senden einer Nachricht an einen Channel
+        func sendMessage(message: Message) {
+            guard let channelID = currentChannel?.channelID else { return }
+            
+            let messageData: [String: Any] = [
+                "senderId": message.senderId,
+                "content": message.content,
+                "timestamp": FieldValue.serverTimestamp()
+            ]
+            
+            database.collection("channels").document(channelID).collection("messages").addDocument(data: messageData) { error in
                 if let error = error {
-                    print("Error updating timestamp for \(username): \(error)")
+                    print("Error sending message: \(error)")
                 } else {
-                    print("Timestamp updated for \(username)")
-                    self.fetchOnlineUsersInChannel()
+                    print("Message sent successfully.")
                 }
             }
-    }
-    
-    // Funktion um den Nutzer aus den Online Users des Channels zu entfernen
-    func onChannelLeave(username: String) {
-        guard let channelID = currentChannel?.channelID else { return }
+        }
         
-        database.collection("channels").document(channelID).collection("onlineUsers").document(username)
-            .delete() { error in
-                if let error = error {
-                    print("Error removing user: \(error)")
-                } else {
-                    print("User removed: \(username)")
+        // Funktion zum Abrufen der Online User eines Channels
+        func fetchOnlineUsersInChannel() {
+            guard let channelID = currentChannel?.channelID else { return }
+            
+            database.collection("channels").document(channelID).collection("onlineUsers")
+                .getDocuments { querySnapshot, error in
+                    if let error = error {
+                        print("Error fetching online users: \(error)")
+                        return
+                    }
+                    
+                    self.onlineUsers = querySnapshot?.documents.compactMap { document in
+                        try? document.data(as: OnlineUser.self)
+                    } ?? []
+                    print("Fetched online users: \(self.onlineUsers)")
                 }
-            }
+        }
+        
+        // Funktion zum Hinzufügen oder Aktualisieren von Online User Daten
+        // TODO
+        func addOrUpdateOnlineUserData(username: String, age: String, gender: String, profilePic: String, status: Int) {
+            guard let channelID = currentChannel?.channelID else { return }
+            
+            let onlineUserData: [String: Any] = [
+                "username": username,
+                "age": age,
+                "gender": gender,
+                "profilePic": profilePic,
+                "status": status,
+                "timestamp": FieldValue.serverTimestamp()
+            ]
+            
+            database.collection("channels").document(channelID).collection("onlineUsers").document(username)
+                .setData(onlineUserData) { error in
+                    if let error = error {
+                        print("Error updating user data: \(error)")
+                    } else {
+                        print("User data updated for \(username)")
+                        self.fetchOnlineUsersInChannel()
+                    }
+                }
+        }
+        
+        // Funktion zum Aktualisieren des eigenen Timestamps in den Online Usern
+        // TODO
+        func updateOnlineUserTimestamp(username: String) {
+            guard let channelID = currentChannel?.channelID else { return }
+            
+            database.collection("channels").document(channelID).collection("onlineUsers").document(username)
+                .updateData(["timestamp": FieldValue.serverTimestamp()]) { error in
+                    if let error = error {
+                        print("Error updating timestamp for \(username): \(error)")
+                    } else {
+                        print("Timestamp updated for \(username)")
+                        self.fetchOnlineUsersInChannel()
+                    }
+                }
+        }
+        
+        // Funktion um den Nutzer aus den Online Users des Channels zu entfernen
+        func onChannelLeave(username: String) {
+            guard let channelID = currentChannel?.channelID else { return }
+            
+            database.collection("channels").document(channelID).collection("onlineUsers").document(username)
+                .delete() { error in
+                    if let error = error {
+                        print("Error removing user: \(error)")
+                    } else {
+                        print("User removed: \(username)")
+                    }
+                }
+        }
     }
-}

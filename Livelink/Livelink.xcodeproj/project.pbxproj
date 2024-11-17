@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		F6B357EA2CEA7BFD003A7939 /* Secrets.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6B357E92CEA7BFA003A7939 /* Secrets.swift */; };
 		F6EA830E2CD0279A00718457 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = F6EA830D2CD0279A00718457 /* GoogleService-Info.plist */; };
 		F6EA83112CD0280B00718457 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = F6EA83102CD0280B00718457 /* FirebaseAuth */; };
 		F6EA83132CD0280B00718457 /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = F6EA83122CD0280B00718457 /* FirebaseCore */; };
@@ -33,6 +34,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		F6B357E92CEA7BFA003A7939 /* Secrets.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Secrets.swift; sourceTree = "<group>"; };
 		F6EA82D52CD0259A00718457 /* Livelink.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Livelink.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		F6EA82E52CD0259C00718457 /* LivelinkTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = LivelinkTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		F6EA82EF2CD0259C00718457 /* LivelinkUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = LivelinkUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -90,6 +92,7 @@
 		F6EA82CC2CD0259A00718457 = {
 			isa = PBXGroup;
 			children = (
+				F6B357E92CEA7BFA003A7939 /* Secrets.swift */,
 				F6EA830D2CD0279A00718457 /* GoogleService-Info.plist */,
 				F6EA82D72CD0259A00718457 /* Livelink */,
 				F6EA82E82CD0259C00718457 /* LivelinkTests */,
@@ -262,6 +265,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F6B357EA2CEA7BFD003A7939 /* Secrets.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
