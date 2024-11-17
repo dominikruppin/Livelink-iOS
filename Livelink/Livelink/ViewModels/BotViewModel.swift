@@ -21,15 +21,15 @@ class BotViewModel: ObservableObject {
     }
 
     // Sendet eine Nachricht an die Perplexity API
-    func sendMessage(apiKey: String, request: BotRequest) {
-        botRepository.sendMessage(apiKey: apiKey, request: request) { [weak self] result in
+    func sendMessage(apiKey: String, request: BotRequest, completion: @escaping (BotResponse?) -> Void) {
+        botRepository.sendMessage(apiKey: apiKey, request: request) { result in
             DispatchQueue.main.async {
-                // API Antwort bzw. mögliche Fehler verarbeiten
                 switch result {
                 case .success(let response):
-                    self?.response = response
+                    completion(response)
                 case .failure(let error):
-                    self?.errorMessage = error.localizedDescription
+                    print("Bot API Error: \(error.localizedDescription)")
+                    completion(nil)
                 }
             }
         }

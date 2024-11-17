@@ -96,7 +96,7 @@ struct JoinedChannelView: View {
                             .background(Color.white)
                             .cornerRadius(10)
                             .frame(maxWidth: geometry.size.width * 0.7) // Breite für das Textfeld
-                    
+                        
                         Button(action: sendMessage) {
                             Text("Senden")
                                 .padding()
@@ -141,9 +141,33 @@ struct JoinedChannelView: View {
     
     private func sendMessage() {
         guard !messageContent.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
+        if messageContent.lowercased().hasPrefix("paul") {
+            let commandText = messageContent.dropFirst(4).trimmingCharacters(in: .whitespacesAndNewlines)
+            let botRequest = BotRequest(
+                model: "llama-3.1-sonar-small-128k-chat",
+                messages: [
+                    BotMessage(role: "system", content: "Du bist ein deutscher Chatbot namens Paul. Antworte nur auf Deutsch. Du arbeitest beim Syntax Institut."),
+                    BotMessage(role: "user", content: commandText)
+                ]
+            )
+
+            BotViewModel().sendMessage(apiKey: "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", request: botRequest) { botResponse in
+                if let botResponse = botResponse {
+                    let botMessage = Message(
+                        senderId: "Paul", // Bot-Name
+                        content: botResponse.choices.first?.message.content ?? "Ich mache aktuell eine Pause."
+                    )
+                    DispatchQueue.main.async {
+                        channelsViewModel.sendMessage(message: botMessage)
+                    }
+                }
+            }
+        }
+
         let message = Message(senderId: userViewModel.userData!.username, content: messageContent)
         channelsViewModel.sendMessage(message: message)
         messageContent = ""
     }
+
 }
 

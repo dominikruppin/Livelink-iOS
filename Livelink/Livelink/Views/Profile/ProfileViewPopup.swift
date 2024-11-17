@@ -144,6 +144,8 @@ struct ProfileViewPopup: View {
         switch status {
         case 6:
             return "Admin"
+        case 8:
+            return "Bot"
         case 11:
             return "Sysadmin"
         default:
