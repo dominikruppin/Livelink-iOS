@@ -242,12 +242,14 @@ class UserViewModel: ObservableObject {
     }
     
     // Aktualisiere Benutzer-Daten
-    func updateUserData(uid: String, newData: [String: Any]) {
+    func updateUserData(uid: String, newData: [String: Any], completion: @escaping (Bool) -> Void) {
         usersCollectionReference.document(uid).updateData(newData) { error in
             if let error = error {
                 print("Fehler beim Aktualisieren der User-Daten: \(error.localizedDescription)")
+                completion(false)
             } else {
                 print("Benutzer-Daten erfolgreich aktualisiert.")
+                completion(true)
             }
         }
     }
@@ -298,6 +300,12 @@ class UserViewModel: ObservableObject {
             "profilePicURL": url
         ]
         
-        self.updateUserData(uid: uid, newData: newData)
+        self.updateUserData(uid: uid, newData: newData) { success in
+            if success {
+                print("Profilbild-URL erfolgreich aktualisiert.")
+            } else {
+                print("Fehler beim Aktualisieren der Profilbild-URL.")
+            }
+        }
     }
 }

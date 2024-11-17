@@ -22,14 +22,14 @@ struct EditProfileView: View {
     @State private var city: String = ""
     @State private var profileImage: UIImage?
     @State private var isImagePickerPresented = false
+    @State private var saveStatus: SaveStatus?
     @StateObject var zipCodeViewModel = ZipCodeViewModel()
-    //@EnvironmentObject var userDatasViewModel: UserDatasViewModel
     @EnvironmentObject var userViewModel: UserViewModel
-
+    
     private var canEdit: Bool {
         userViewModel.userData != nil
     }
-
+    
     @available(iOS 16.0, *)
     var body: some View {
         NavigationView {
@@ -38,8 +38,26 @@ struct EditProfileView: View {
                     .resizable()
                     .scaledToFill()
                     .edgesIgnoringSafeArea(.all)
-
+                
                 VStack {
+                    // Benachrichtigungen
+                    if let saveStatus = saveStatus {
+                        Text(saveStatus.message)
+                            .font(.headline)
+                            .foregroundColor(saveStatus.isSuccess ? .green : .red)
+                            .padding()
+                            .background(RoundedRectangle(cornerRadius: 10).fill(Color.white.opacity(0.8)))
+                            .transition(.move(edge: .top).combined(with: .opacity))
+                            .animation(.easeInOut, value: saveStatus)
+                            .onAppear {
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+                                    withAnimation {
+                                        self.saveStatus = nil
+                                    }
+                                }
+                            }
+                    }
+                    
                     HStack {
                         AsyncImage(url: URL(string: userViewModel.userData?.profilePicURL ?? "")) { image in
                             image
@@ -62,23 +80,32 @@ struct EditProfileView: View {
                         .frame(maxWidth: .infinity)
                     }
                     .padding(.top, 20)
-
+                    
                     Form {
                         Section(header: Text("Name")) {
                             TextField("Name", text: $name)
                                 .disabled(!canEdit)
                         }
                         .listRowInsets(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 0))
-
+                        
                         Section(header: Text("Alter")) {
-                            TextField("Alter", text: $age)
-                                .keyboardType(.numberPad)
-                                .disabled(!canEdit)
+                            if let userBirthday = userViewModel.userData?.birthday, !userBirthday.isEmpty {
+                                if let birthdayDate = stringToDate(userBirthday) {
+                                    Text("\(calculateAge(from: birthdayDate)) Jahre") // Berechnetes Alter anzeigen
+                                        .font(.headline)
+                                } else {
+                                    Text("Ungültiges Geburtsdatum")
+                                        .font(.headline)
+                                }
+                            } else {
+                                TextField("Alter", text: $age)
+                                    .keyboardType(.numberPad)
+                                    .disabled(true)
+                            }
                         }
-                        .listRowInsets(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 0))
-
+                        
                         Section(header: Text("Geburtsdatum")) {
-                            if let userBirthday = userViewModel.userData?.birthday {
+                            if let userBirthday = userViewModel.userData?.birthday, !userBirthday.isEmpty {
                                 if let birthdayDate = stringToDate(userBirthday) {
                                     Text("\(formattedDate(birthdayDate))")
                                         .font(.headline)
@@ -92,7 +119,7 @@ struct EditProfileView: View {
                             }
                         }
                         .listRowInsets(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 0))
-
+                        
                         Section(header: Text("Geschlecht")) {
                             Picker("Geschlecht", selection: $gender) {
                                 Text("Männlich").tag("Männlich")
@@ -103,27 +130,19 @@ struct EditProfileView: View {
                             .disabled(!canEdit)
                         }
                         .listRowInsets(EdgeInsets(top: 0, leading: 4, bottom: 0, trailing: 4))
-
+                        
                         Section(header: Text("Beziehungsstatus")) {
                             Picker("\(relationshipStatus)", selection: $relationshipStatus) {
                                 Text("Keine Angabe").tag("Keine Angabe")
                                 Text("Single").tag("Single")
-                                Text("Auf Wolke7").tag("Auf Wolke7")
                                 Text("Vergeben").tag("Vergeben")
-                                Text("Glücklich Vergeben").tag("Glücklich Vergeben")
                                 Text("Verheiratet").tag("Verheiratet")
-                                Text("Geschieden").tag("Geschieden")
-                                Text("Verwitwet").tag("Verwitwet")
-                                Text("On Off").tag("On Off")
-                                Text("Beziehungsunfähig").tag("Beziehungsunfähig")
-                                Text("Kann man das Essen?").tag("Kann man das Essen?")
                             }
                             .pickerStyle(DefaultPickerStyle())
                             .disabled(!canEdit)
                         }
                         .listRowInsets(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 0))
-
-
+                        
                         Section(header: Text("Land")) {
                             Picker("\(country)", selection: $country) {
                                 Text("Keine Angabe").tag("Keine Angabe")
@@ -143,40 +162,34 @@ struct EditProfileView: View {
                             }
                             .listRowInsets(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 0))
                         }
-
+                        
                         Section(header: Text("Wildspace")) {
                             TextEditor(text: $wildspace)
                                 .frame(height: 150)
-                                .padding(.bottom, 10)
                                 .disabled(!canEdit)
                                 .border(Color.gray, width: 1)
                         }
                         .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
                     }
                     .scrollContentBackground(.hidden)
-                    .padding(.horizontal, 32)
-                    .cornerRadius(20)
-                    .shadow(radius: 10)
-                    Spacer().frame(height: 10)
+                    .padding(.horizontal)
                 }
-                .padding(.horizontal)
+                .padding()
             }
             .onAppear {
                 loadUserData()
             }
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
-                        Button(action: {
-                            userViewModel.logout()
-                        }) {
-                            Text("Logout")
-                                .font(.headline)
-                        }
-                    }
-                ToolbarItem(placement: .navigationBarTrailing) {
                     Button(action: {
-                        saveProfileData()
+                        userViewModel.logout()
                     }) {
+                        Text("Logout")
+                            .font(.headline)
+                    }
+                }
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button(action: saveProfileData) {
                         Text("Speichern")
                             .font(.headline)
                     }
@@ -184,15 +197,11 @@ struct EditProfileView: View {
                 }
             }
         }
-        .sheet(isPresented: $isImagePickerPresented, onDismiss: {
-            if let image = profileImage {
-                userViewModel.uploadProfileImage(image: image)
-            }
-        }) {
+        .sheet(isPresented: $isImagePickerPresented) {
             ImagePicker(selectedImage: $profileImage, isPresented: $isImagePickerPresented)
         }
     }
-
+    
     private func loadUserData() {
         if let userData = userViewModel.userData {
             name = userData.name
@@ -207,7 +216,7 @@ struct EditProfileView: View {
             city = userData.city
         }
     }
-
+    
     func formattedDate(_ date: Date) -> String {
         let formatter = DateFormatter()
         formatter.dateStyle = .long
@@ -219,65 +228,82 @@ struct EditProfileView: View {
         formatter.dateStyle = .short
         return formatter.date(from: dateString)
     }
-
+    
+    func calculateAge(from dateOfBirth: Date) -> Int {
+        let calendar = Calendar.current
+        let today = Date()
+        let ageComponents = calendar.dateComponents([.year], from: dateOfBirth, to: today)
+        return ageComponents.year ?? 0
+    }
+    
     func saveProfileData() {
+        // Wenn Postleitzahl und Land angegeben sind laden wir infos über openPLZ API
+        if !zipCode.isEmpty, country != "Keine Angabe" {
+            zipCodeViewModel.fetchZipInfos(country: country, postalCode: zipCode) { (state: String?, city: String?, error: String?) in
+                // Falls ein Fehler vorliegt, speichern beenden und Fehlermeldung ausgeben
+                if let error = error {
+                    withAnimation {
+                        saveStatus = SaveStatus(message: error, isSuccess: false)
+                    }
+                    return
+                }
+                
+                // Checken ob die API Daten gefunden/geliefert hat
+                if state == nil || city == nil {
+                    withAnimation {
+                        saveStatus = SaveStatus(message: "Ungültige Postleitzahl oder keine Daten gefunden.", isSuccess: false)
+                    }
+                    return
+                }
+                
+                // Falls wir Daten erhalten haben setzen wir sie
+                self.state = state ?? ""
+                self.city = city ?? ""
+                
+                saveProfileDataToDatabase()
+            }
+        } else {
+            // Wenn Postleitzahl und Land nicht angegeben sind speichern wir den Rest
+            saveProfileDataToDatabase()
+        }
+    }
+    
+    private func saveProfileDataToDatabase() {
         let formatter = DateFormatter()
         formatter.dateStyle = .short
         let birthdayString = formatter.string(from: birthday)
-        var newCountry = country
-        if country == "Keine Angabe" {
-            newCountry = ""
-        }
+        let calculatedAge = calculateAge(from: birthday)
         
-        if !zipCode.isEmpty, country != "Keine Angabe" {
-            zipCodeViewModel.fetchZipInfos(country: country, postalCode: zipCode) { (state: String?, city: String?, error: String?) in
-                if let error = error {
-                    print("Fehler beim Laden der ZipCode-Infos: \(error)")
-                    return
-                }
-
-                self.state = state ?? ""
-                self.city = city ?? ""
-                let newData: [String: Any] = [
-                    "name": self.name,
-                    "age": self.age,
-                    "birthday": birthdayString,
-                    "zipCode": self.zipCode,
-                    "gender": self.gender,
-                    "relationshipStatus": self.relationshipStatus,
-                    "country": newCountry,
-                    "wildspace": self.wildspace,
-                    "state": state ?? "",
-                    "city": city ?? ""
-                ]
-
-                self.userViewModel.updateUserData(uid: userViewModel.currentUser!.uid, newData: newData)
+        let newData: [String: Any] = [
+            "name": name,
+            "age": "\(calculatedAge)",
+            "birthday": birthdayString,
+            "zipCode": zipCode,
+            "gender": gender,
+            "relationshipStatus": relationshipStatus,
+            "country": country,
+            "wildspace": wildspace,
+            "state": state,
+            "city": city
+        ]
+        
+        userViewModel.updateUserData(uid: userViewModel.currentUser?.uid ?? "", newData: newData) { success in
+            withAnimation {
+                saveStatus = success
+                ? SaveStatus(message: "Profil erfolgreich gespeichert!", isSuccess: true)
+                : SaveStatus(message: "Fehler beim Speichern des Profils.", isSuccess: false)
             }
-        } else {
-            let newData: [String: Any] = [
-                "name": name,
-                "age": age,
-                "birthday": birthdayString,
-                "zipCode": zipCode,
-                "gender": gender,
-                "relationshipStatus": relationshipStatus,
-                "country": newCountry,
-                "wildspace": wildspace,
-                "state": "",
-                "city": ""
-            ]
-            
-            userViewModel.updateUserData(uid: userViewModel.currentUser?.uid ?? "<default value>", newData: newData)
         }
     }
 }
 
+
 struct ImagePicker: View {
     @Binding var selectedImage: UIImage?
     @Binding var isPresented: Bool
-
+    
     @State private var isImagePickerPresented = false
-
+    
     var body: some View {
         ImagePickerController(isPresented: $isPresented, selectedImage: $selectedImage)
     }
@@ -286,18 +312,18 @@ struct ImagePicker: View {
 struct ImagePickerController: UIViewControllerRepresentable {
     @Binding var isPresented: Bool
     @Binding var selectedImage: UIImage?
-
+    
     class Coordinator: NSObject, UINavigationControllerDelegate, UIImagePickerControllerDelegate {
         var parent: ImagePickerController
-
+        
         init(parent: ImagePickerController) {
             self.parent = parent
         }
-
+        
         func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
             parent.isPresented = false
         }
-
+        
         func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
             if let image = info[.originalImage] as? UIImage {
                 parent.selectedImage = image
@@ -305,17 +331,17 @@ struct ImagePickerController: UIViewControllerRepresentable {
             parent.isPresented = false
         }
     }
-
+    
     func makeCoordinator() -> Coordinator {
         return Coordinator(parent: self)
     }
-
+    
     func makeUIViewController(context: Context) -> UIImagePickerController {
         let picker = UIImagePickerController()
         picker.delegate = context.coordinator
         picker.sourceType = .photoLibrary
         return picker
     }
-
+    
     func updateUIViewController(_ uiViewController: UIImagePickerController, context: Context) {}
 }
