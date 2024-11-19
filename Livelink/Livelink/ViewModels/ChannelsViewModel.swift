@@ -20,6 +20,7 @@ class ChannelsViewModel: ObservableObject {
     @Published var onlineUsers = [OnlineUser]()
     private var database = FirebaseManager.shared.database
     private let botViewModel = BotViewModel()
+    private var onlineUsersListener: ListenerRegistration?
     
     // Direkt beim starten der App holen wir uns die aktuelle Channelliste
     init() {
@@ -51,7 +52,7 @@ class ChannelsViewModel: ObservableObject {
             self.messages = []
             self.currentChannel = ChannelJoin(channelID: channel.name, backgroundURL: channel.backgroundUrl)
         }
-        
+                
         let userDataRef = database.collection("users").document(Auth.auth().currentUser!.uid)
         
         do {
@@ -123,7 +124,7 @@ class ChannelsViewModel: ObservableObject {
             }
     }
     
-    
+    // Ist für das senden von Nachrichten an FireStore zuständig. Prüft ebenfalls ob der Bot angesprochen wurde und führt API Call aus
     func handleSendMessage(username: String, content: String) {
         let message = Message(senderId: username, content: content)
         
@@ -175,48 +176,55 @@ func sendMessage(message: Message) {
     }
 }
 
-// Funktion zum Abrufen der Online User eines Channels
-func fetchOnlineUsersInChannel() {
-    guard let channelID = currentChannel?.channelID else { return }
-    
-    database.collection("channels").document(channelID).collection("onlineUsers")
-        .getDocuments { querySnapshot, error in
-            if let error = error {
-                print("Error fetching online users: \(error)")
-                return
+    // Funktion zum Abrufen der Online-User eines Channels
+    func startOnlineUsersListener() {
+        print("OnlineUsersListener aufgerufen")
+        guard let channelID = currentChannel?.channelID else { return }
+        print("haben eine channelid)")
+        
+        // Alten Listener entfernen
+        stopOnlineUsersListener()
+        
+        onlineUsersListener = database.collection("channels")
+            .document(channelID)
+            .collection("onlineUsers")
+            .addSnapshotListener { [weak self] querySnapshot, error in
+                guard let self = self else { return }
+                
+                if let error = error {
+                    print("Error fetching online users: \(error)")
+                    return
+                }
+                print("Bis hier gekommen")
+                self.onlineUsers = querySnapshot?.documents.compactMap { document in
+                    try? document.data(as: OnlineUser.self)
+                } ?? []
+                print("Bis hier gekommen2")
+                print("Updated online users: \(self.onlineUsers)")
             }
-            
-            self.onlineUsers = querySnapshot?.documents.compactMap { document in
-                try? document.data(as: OnlineUser.self)
-            } ?? []
-            print("Fetched online users: \(self.onlineUsers)")
-        }
-}
+    }
+    
+    // Funktion zum Stoppen des SnapshotListeners
+    func stopOnlineUsersListener() {
+        onlineUsersListener?.remove()
+        onlineUsersListener = nil
+    }
 
 // Funktion zum Hinzufügen oder Aktualisieren von Online User Daten
-// TODO
-func addOrUpdateOnlineUserData(username: String, age: String, gender: String, profilePic: String, status: Int) {
-    guard let channelID = currentChannel?.channelID else { return }
-    
-    let onlineUserData: [String: Any] = [
-        "username": username,
-        "age": age,
-        "gender": gender,
-        "profilePic": profilePic,
-        "status": status,
-        "timestamp": FieldValue.serverTimestamp()
-    ]
-    
-    database.collection("channels").document(channelID).collection("onlineUsers").document(username)
-        .setData(onlineUserData) { error in
-            if let error = error {
-                print("Error updating user data: \(error)")
-            } else {
-                print("User data updated for \(username)")
-                self.fetchOnlineUsersInChannel()
+    func addOrUpdateOnlineUserData(username: String, age: String, gender: String, profilePic: String, status: Int) {
+        guard let channelID = currentChannel?.channelID else { return }
+        
+        let onlineUserData = OnlineUser(username: username, age: age, gender: gender, profilePic: profilePic, status: status)
+        
+        database.collection("channels").document(channelID).collection("onlineUsers").document(username)
+            .setData(onlineUserData.toDictionary(), merge: true) { error in
+                if let error = error {
+                    print("Error updating user data: \(error)")
+                } else {
+                    print("User data updated for \(username)")
+                }
             }
-        }
-}
+    }
 
 // Funktion zum Aktualisieren des eigenen Timestamps in den Online Usern
 // TODO
@@ -229,7 +237,6 @@ func updateOnlineUserTimestamp(username: String) {
                 print("Error updating timestamp for \(username): \(error)")
             } else {
                 print("Timestamp updated for \(username)")
-                self.fetchOnlineUsersInChannel()
             }
         }
 }
@@ -237,6 +244,7 @@ func updateOnlineUserTimestamp(username: String) {
 // Funktion um den Nutzer aus den Online Users des Channels zu entfernen
 func onChannelLeave(username: String) {
     guard let channelID = currentChannel?.channelID else { return }
+    stopOnlineUsersListener()
     
     database.collection("channels").document(channelID).collection("onlineUsers").document(username)
         .delete() { error in

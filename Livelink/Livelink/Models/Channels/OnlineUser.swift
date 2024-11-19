@@ -16,4 +16,16 @@ struct OnlineUser: Codable {
     var status: Int = 0
     var joinTimestamp: Timestamp = Timestamp(date: Date())
     var timestamp: Timestamp = Timestamp(date: Date())
+    
+    func toDictionary() -> [String: Any] {
+            return [
+                "username": username,
+                "age": age,
+                "gender": gender,
+                "profilePic": profilePic,
+                "status": status,
+                "joinTimestamp": FieldValue.serverTimestamp(),
+                "timestamp": FieldValue.serverTimestamp(),
+            ]
+        }
 }
