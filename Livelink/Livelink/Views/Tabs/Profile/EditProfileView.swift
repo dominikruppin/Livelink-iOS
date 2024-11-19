@@ -131,7 +131,7 @@ struct EditProfileView: View {
                             .pickerStyle(SegmentedPickerStyle())
                             .disabled(!canEdit)
                         }
-                        .listRowInsets(EdgeInsets(top: 0, leading: 4, bottom: 0, trailing: 4))
+                        .listRowInsets(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16))
                         
                         Section(header: Text("Beziehungsstatus")) {
                             Picker("\(relationshipStatus)", selection: $relationshipStatus) {
@@ -167,6 +167,7 @@ struct EditProfileView: View {
                         
                         Section(header: HStack {
                             Text("Wildspace")
+                                .padding(.horizontal, 16)
                             Button(action: {
                                 showWildspaceHelp.toggle()
                             }) {
@@ -175,14 +176,16 @@ struct EditProfileView: View {
                             }
                             .sheet(isPresented: $showWildspaceHelp) {
                                 VStack(spacing: 16) {
-                                    Text("Hilfe zu Wildspace")
+                                    Text("Hilfe zur Wildspace")
                                         .font(.headline)
                                         .padding(.top)
+                                        .textCase(.none)
                                     
                                     Text("""
                                     Hier kannst du dich ein wenig austoben und deinen eigenen Bereich gestalten. Dazu steht dir eingeschränktes HTML zur Verfügung. Du kannst jegliche Formatierungen nutzen sowie Zeilenumbrüche. Außerdem hast du die Möglichkeit ein einziges Bild einzufügen. Nutze dazu einfach den Tag [LINK]. Link muss natürlich durch deine Bildurl ersetzt werden.
                                     """)
-                                        .padding()
+                                    .padding()
+                                    .textCase(.none)
                                     
                                     Button("Schließen") {
                                         showWildspaceHelp = false
