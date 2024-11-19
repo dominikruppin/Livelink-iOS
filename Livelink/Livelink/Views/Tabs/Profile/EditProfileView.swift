@@ -8,6 +8,7 @@
 import SwiftUI
 import Firebase
 import FirebaseStorage
+import SwiftSoup
 
 struct EditProfileView: View {
     @State private var name: String = ""
@@ -23,6 +24,7 @@ struct EditProfileView: View {
     @State private var profileImage: UIImage?
     @State private var isImagePickerPresented = false
     @State private var saveStatus: SaveStatus?
+    @State private var showWildspaceHelp = false
     @StateObject var zipCodeViewModel = ZipCodeViewModel()
     @EnvironmentObject var userViewModel: UserViewModel
     
@@ -163,7 +165,36 @@ struct EditProfileView: View {
                             .listRowInsets(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 0))
                         }
                         
-                        Section(header: Text("Wildspace")) {
+                        Section(header: HStack {
+                            Text("Wildspace")
+                            Button(action: {
+                                showWildspaceHelp.toggle()
+                            }) {
+                                Image(systemName: "info.circle")
+                                    .foregroundColor(.blue)
+                            }
+                            .sheet(isPresented: $showWildspaceHelp) {
+                                VStack(spacing: 16) {
+                                    Text("Hilfe zu Wildspace")
+                                        .font(.headline)
+                                        .padding(.top)
+                                    
+                                    Text("""
+                                    Hier kannst du dich ein wenig austoben und deinen eigenen Bereich gestalten. Dazu steht dir eingeschränktes HTML zur Verfügung. Du kannst jegliche Formatierungen nutzen sowie Zeilenumbrüche. Außerdem hast du die Möglichkeit ein einziges Bild einzufügen. Nutze dazu einfach den Tag [LINK]. Link muss natürlich durch deine Bildurl ersetzt werden.
+                                    """)
+                                        .padding()
+                                    
+                                    Button("Schließen") {
+                                        showWildspaceHelp = false
+                                    }
+                                    .padding(.bottom)
+                                }
+                                .padding()
+                                .frame(maxWidth: .infinity, minHeight: 200, maxHeight: .infinity)
+                                .background(Color(UIColor.systemBackground))
+                                .cornerRadius(20)
+                            }
+                        }) {
                             TextEditor(text: $wildspace)
                                 .frame(height: 150)
                                 .disabled(!canEdit)
@@ -278,6 +309,7 @@ struct EditProfileView: View {
         formatter.dateStyle = .short
         let birthdayString = formatter.string(from: birthday)
         let calculatedAge = calculateAge(from: birthday)
+        let filteredWildspace = filterHTMLTags(input: wildspace)
         
         let newData: [String: Any] = [
             "name": name,
@@ -287,7 +319,7 @@ struct EditProfileView: View {
             "gender": gender,
             "relationshipStatus": relationshipStatus,
             "country": country,
-            "wildspace": wildspace,
+            "wildspace": filteredWildspace,
             "state": state,
             "city": city
         ]
@@ -299,6 +331,19 @@ struct EditProfileView: View {
                 : SaveStatus(message: "Fehler beim Speichern des Profils.", isSuccess: false)
             }
         }
+    }
+}
+
+// Hilfsfunktion zum filtern von HTML
+func filterHTMLTags(input: String) -> String {
+    do {
+        let whitelist = try Whitelist.basic()
+        try whitelist.addTags("b", "i", "u", "br", "strong", "em") // Erlaubte HTML Tags
+        let cleanHTML = try SwiftSoup.clean(input, whitelist)
+        return cleanHTML ?? ""
+    } catch {
+        print("Error sanitizing HTML: \(error.localizedDescription)")
+        return input
     }
 }
 

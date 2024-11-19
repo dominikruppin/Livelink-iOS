@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		F6B357EA2CEA7BFD003A7939 /* Secrets.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6B357E92CEA7BFA003A7939 /* Secrets.swift */; };
+		F6B358012CED0D7A003A7939 /* SwiftSoup in Frameworks */ = {isa = PBXBuildFile; productRef = F6B358002CED0D7A003A7939 /* SwiftSoup */; };
 		F6EA830E2CD0279A00718457 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = F6EA830D2CD0279A00718457 /* GoogleService-Info.plist */; };
 		F6EA83112CD0280B00718457 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = F6EA83102CD0280B00718457 /* FirebaseAuth */; };
 		F6EA83132CD0280B00718457 /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = F6EA83122CD0280B00718457 /* FirebaseCore */; };
@@ -69,6 +70,7 @@
 				F6EA83112CD0280B00718457 /* FirebaseAuth in Frameworks */,
 				F6EA837A2CD586A900718457 /* SwiftUIX in Frameworks */,
 				F6EA83152CD0280B00718457 /* FirebaseFirestore in Frameworks */,
+				F6B358012CED0D7A003A7939 /* SwiftSoup in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -136,6 +138,7 @@
 				F6EA83142CD0280B00718457 /* FirebaseFirestore */,
 				F6EA83162CD0280B00718457 /* FirebaseStorage */,
 				F6EA83792CD586A900718457 /* SwiftUIX */,
+				F6B358002CED0D7A003A7939 /* SwiftSoup */,
 			);
 			productName = Livelink;
 			productReference = F6EA82D52CD0259A00718457 /* Livelink.app */;
@@ -222,6 +225,7 @@
 			packageReferences = (
 				F6EA830F2CD0280B00718457 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 				F6EA83782CD586A900718457 /* XCRemoteSwiftPackageReference "SwiftUIX" */,
+				F6B357FF2CED0D7A003A7939 /* XCRemoteSwiftPackageReference "SwiftSoup" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = F6EA82D62CD0259A00718457 /* Products */;
@@ -604,6 +608,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		F6B357FF2CED0D7A003A7939 /* XCRemoteSwiftPackageReference "SwiftSoup" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/scinfu/SwiftSoup.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.7.6;
+			};
+		};
 		F6EA830F2CD0280B00718457 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
@@ -623,6 +635,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		F6B358002CED0D7A003A7939 /* SwiftSoup */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F6B357FF2CED0D7A003A7939 /* XCRemoteSwiftPackageReference "SwiftSoup" */;
+			productName = SwiftSoup;
+		};
 		F6EA83102CD0280B00718457 /* FirebaseAuth */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = F6EA830F2CD0280B00718457 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
