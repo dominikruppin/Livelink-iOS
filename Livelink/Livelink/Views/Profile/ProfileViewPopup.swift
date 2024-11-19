@@ -8,23 +8,12 @@
 import SwiftUI
 import WebKit
 
-// Zeigt die HTML Inhalte in der Wildspace an
-struct WebView: UIViewRepresentable {
-    var htmlContent: String
-    
-    func makeUIView(context: Context) -> WKWebView {
-        return WKWebView()
-    }
-    
-    func updateUIView(_ uiView: WKWebView, context: Context) {
-        uiView.loadHTMLString(htmlContent, baseURL: nil)
-    }
-}
-
 // Zeigt das Profil an
 struct ProfileViewPopup: View {
     var profile: UserData
     @EnvironmentObject var userViewModel: UserViewModel
+    @EnvironmentObject var channelViewModel: ChannelsViewModel
+    @State private var onlineChannel: String? = nil
     
     var body: some View {
         GeometryReader { geometry in
@@ -64,6 +53,19 @@ struct ProfileViewPopup: View {
                         .font(.subheadline)
                         .foregroundColor(.gray)
                         .padding(.top, 4)
+                    
+                    // Channel Info anzeigen
+                    if let onlineChannel = onlineChannel {
+                        Text("Online in Channel: \(onlineChannel)")
+                            .font(.subheadline)
+                            .foregroundColor(.green)
+                            .padding(.top, 4)
+                    } else {
+                        Text("Der Nutzer ist momentan offline.")
+                            .font(.subheadline)
+                            .foregroundColor(.red)
+                            .padding(.top, 4)
+                    }
                 }
                 .padding(.top, 20)
                 
@@ -142,8 +144,25 @@ struct ProfileViewPopup: View {
             .cornerRadius(20)
             .shadow(radius: 10)
             .frame(width: geometry.size.width, height: geometry.size.height)
+            .onAppear {
+                fetchUserOnlineChannel()
+            }
+            .onDisappear {
+                userViewModel.profileUserData = nil
+            }
         }
         .ignoresSafeArea(.container, edges: .bottom)
+    }
+    
+    // Überprüft den Online-Status des Nutzers
+    private func fetchUserOnlineChannel() {
+        channelViewModel.checkUserOnlineInAnyChannel(username: profile.username) { channelID in
+            if let channelID = channelID {
+                self.onlineChannel = channelID
+            } else {
+                self.onlineChannel = nil
+            }
+        }
     }
     
     // Übersetzt den Userstatus vom Integer in Text (String)
@@ -173,31 +192,44 @@ struct ProfileViewPopup: View {
         profile.wildspace.isEmpty
     }
 }
+
+// Wandelt den Link-Tag in der Wildspace zu HTML Code um um das Bild anzuzeigen
+private func transformWildspace(_ content: String) -> String {
+    // alle [URL] Tags mit einer URL suchen
+    let pattern = #"\[([^\]]+)\]"#
+    let regex = try? NSRegularExpression(pattern: pattern, options: .caseInsensitive)
     
-    // Wandelt den Link-Tag in der Wildspace zu HTML Code um um das Bild anzuzeigen
-    private func transformWildspace(_ content: String) -> String {
-        // alle [URL] Tags mit einer URL suchen
-        let pattern = #"\[([^\]]+)\]"#
-        let regex = try? NSRegularExpression(pattern: pattern, options: .caseInsensitive)
+    // Falls ein Link gefunden wird
+    if let match = regex?.firstMatch(in: content, options: [], range: NSRange(location: 0, length: content.count)) {
+        let linkRange = match.range(at: 1)
         
-        // Falls ein Link gefunden wird
-        if let match = regex?.firstMatch(in: content, options: [], range: NSRange(location: 0, length: content.count)) {
-            let linkRange = match.range(at: 1)
+        if let linkRange = Range(linkRange, in: content) {
+            let imageURL = String(content[linkRange])
+            let imageTag = "<img src=\"\(imageURL)\" />"
             
-            if let linkRange = Range(linkRange, in: content) {
-                let imageURL = String(content[linkRange])
-                let imageTag = "<img src=\"\(imageURL)\" />"
-                
-                // Ersetzen Link durch Imagetag ersetzen
-                var updatedContent = content.replacingOccurrences(of: "[\(imageURL)]", with: imageTag)
-                
-                // Entferne alle anderen [Link] Tags (Somit nur 1 Bild erlaubt)
-                updatedContent = updatedContent.replacingOccurrences(of: "\\[[^\\]]+\\]", with: "", options: .regularExpression)
-                return updatedContent
-            }
+            // Ersetzen Link durch Imagetag ersetzen
+            var updatedContent = content.replacingOccurrences(of: "[\(imageURL)]", with: imageTag)
+            
+            // Entferne alle anderen [Link] Tags (Somit nur 1 Bild erlaubt)
+            updatedContent = updatedContent.replacingOccurrences(of: "\\[[^\\]]+\\]", with: "", options: .regularExpression)
+            return updatedContent
         }
-        return content
     }
+    return content
+}
+
+// Zeigt die HTML Inhalte in der Wildspace an
+struct WebView: UIViewRepresentable {
+    var htmlContent: String
+    
+    func makeUIView(context: Context) -> WKWebView {
+        return WKWebView()
+    }
+    
+    func updateUIView(_ uiView: WKWebView, context: Context) {
+        uiView.loadHTMLString(htmlContent, baseURL: nil)
+    }
+}
 
 
 #Preview {

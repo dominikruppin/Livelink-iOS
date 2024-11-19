@@ -175,7 +175,7 @@ class ChannelsViewModel: ObservableObject {
             }
         }
     }
-        
+    
     // Funktion zum Hinzufügen oder Aktualisieren von Online User Daten
     func addOrUpdateOnlineUserData(username: String, age: String, gender: String, profilePic: String, status: Int) {
         guard let channelID = currentChannel?.channelID else { return }
@@ -198,7 +198,7 @@ class ChannelsViewModel: ObservableObject {
         
         let currentTime = Date()
         let sixSecondsAgo = currentTime.addingTimeInterval(-6)
-
+        
         // Abrufen der OnlineUser, die innerhalb der letzten 6 Sekunden aktiv waren und nach joinTimestamp sortiert
         database.collection("channels")
             .document(channelID)
@@ -219,7 +219,44 @@ class ChannelsViewModel: ObservableObject {
                 self.onlineUsers = newUsers
             }
     }
-
+    
+    func checkUserOnlineInAnyChannel(username: String, completion: @escaping (String?) -> Void) {
+        let channelsReference = database.collection("channels")
+        // Alle Channels durchgehen, um nach dem Nutzer zu suchen
+        channelsReference.getDocuments { (channelsSnapshot, error) in
+            if let error = error {
+                print("Error checking user online status: \(error.localizedDescription)") // Fehler bei der Abfrage der Channels
+                completion(nil)
+                return
+            }
+            
+            for channelDoc in channelsSnapshot!.documents {
+                let channelID = channelDoc.documentID
+                
+                let onlineUserRef = channelsReference
+                    .document(channelID)
+                    .collection("onlineUsers")
+                    .document(username)
+                
+                onlineUserRef.getDocument { (onlineUserDoc, error) in
+                    if let error = error {
+                        print("Error checking online user in channel \(channelID): \(error.localizedDescription)") // Fehler bei der Abfrage des Nutzers im Channel
+                        return
+                    }
+                    
+                    if let onlineUserDoc = onlineUserDoc, onlineUserDoc.exists {
+                        // Benutzer gefunden, Rückgabe des Channelnamens
+                        completion(channelID)
+                        return
+                    }
+                }
+            }
+            // Falls der Benutzer in keinem Channel online ist
+            completion(nil)
+        }
+    }
+    
+    
     // Funktion um den Timestamp eines OnlineUsers zu updaten
     func updateOnlineUserTimestamp(username: String) {
         guard let channelID = currentChannel?.channelID else { return }
@@ -228,7 +265,7 @@ class ChannelsViewModel: ObservableObject {
             .document(channelID)
             .collection("onlineUsers")
             .document(username)
-
+        
         // Timestamp updaten
         onlineUsersRef.updateData(["timestamp": FieldValue.serverTimestamp()]) { error in
             if let error = error {
@@ -239,7 +276,7 @@ class ChannelsViewModel: ObservableObject {
             }
         }
     }
-
+    
     
     // Funktion um den Nutzer aus den Online Users des Channels zu entfernen
     func onChannelLeave(username: String) {
