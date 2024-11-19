@@ -55,7 +55,7 @@ struct HomeView: View {
                             .background(Color.gray.opacity(0.1))
                             .cornerRadius(10)
                             .padding(.horizontal, 16)
-                            .frame(maxHeight: 300)
+                            .frame(maxHeight: min(500, CGFloat(userViewModel.searchResults.count * 30))) // Dynamische Höhe basierend auf der Anzahl der Suchergebnisse
                         }
                     }
                     
