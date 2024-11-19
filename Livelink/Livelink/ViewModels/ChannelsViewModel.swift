@@ -196,27 +196,30 @@ class ChannelsViewModel: ObservableObject {
     func fetchOnlineUsers() {
         guard let channelID = currentChannel?.channelID else { return }
         
-        // Abrufen der OnlineUser
+        let currentTime = Date()
+        let sixSecondsAgo = currentTime.addingTimeInterval(-6)
+
+        // Abrufen der OnlineUser, die innerhalb der letzten 6 Sekunden aktiv waren und nach joinTimestamp sortiert
         database.collection("channels")
             .document(channelID)
             .collection("onlineUsers")
+            .whereField("timestamp", isGreaterThan: sixSecondsAgo) // Nur Nutzer innerhalb der letzten 6 Sekunden
             .getDocuments { querySnapshot, error in
                 if let error = error {
                     print("Fehler beim Abrufen der Online-User: \(error)")
                     return
                 }
                 
-                // OnlineUser extrahieren (tolles Wort gell)
+                // OnlineUser extrahieren
                 let newUsers = querySnapshot?.documents.compactMap {
                     try? $0.data(as: OnlineUser.self)
                 } ?? []
-                                
+                
                 // Liste der OnlineUser aktualisieren
                 self.onlineUsers = newUsers
             }
     }
 
-    
     // Funktion um den Timestamp eines OnlineUsers zu updaten
     func updateOnlineUserTimestamp(username: String) {
         guard let channelID = currentChannel?.channelID else { return }
