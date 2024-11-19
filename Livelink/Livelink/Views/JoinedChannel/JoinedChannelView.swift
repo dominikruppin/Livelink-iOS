@@ -160,11 +160,10 @@ struct JoinedChannelView: View {
         }
     }
     
-    
-    // Funktion um den Channel zu betreten und das abrufen der Nachrichten zu starten
+    // Funktion um den Channel zu betreten, abrufen der OnlineUser und der Nachrichten zu starten
     private func joinChannelAndFetchMessages() async {
         await channelsViewModel.joinChannel(channel: channel)
-        channelsViewModel.startOnlineUsersListener()
+        channelsViewModel.fetchOnlineUsers()
         channelsViewModel.fetchMessages()
         channelsViewModel.addOrUpdateOnlineUserData(username: userViewModel.userData!.username, age: userViewModel.userData!.age, gender: userViewModel.userData!.gender, profilePic: userViewModel.userData!.profilePicURL, status: userViewModel.userData!.status)
     }

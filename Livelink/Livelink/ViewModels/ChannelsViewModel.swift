@@ -175,41 +175,7 @@ class ChannelsViewModel: ObservableObject {
             }
         }
     }
-    
-    // Funktion zum Abrufen der Online-User eines Channels
-    func startOnlineUsersListener() {
-        print("OnlineUsersListener aufgerufen")
-        guard let channelID = currentChannel?.channelID else { return }
-        print("haben eine channelid)")
         
-        // Alten Listener entfernen
-        stopOnlineUsersListener()
-        
-        onlineUsersListener = database.collection("channels")
-            .document(channelID)
-            .collection("onlineUsers")
-            .addSnapshotListener { [weak self] querySnapshot, error in
-                guard let self = self else { return }
-                
-                if let error = error {
-                    print("Error fetching online users: \(error)")
-                    return
-                }
-                print("Bis hier gekommen")
-                self.onlineUsers = querySnapshot?.documents.compactMap { document in
-                    try? document.data(as: OnlineUser.self)
-                } ?? []
-                print("Bis hier gekommen2")
-                print("Updated online users: \(self.onlineUsers)")
-            }
-    }
-    
-    // Funktion zum Stoppen des SnapshotListeners
-    func stopOnlineUsersListener() {
-        onlineUsersListener?.remove()
-        onlineUsersListener = nil
-    }
-    
     // Funktion zum Hinzufügen oder Aktualisieren von Online User Daten
     func addOrUpdateOnlineUserData(username: String, age: String, gender: String, profilePic: String, status: Int) {
         guard let channelID = currentChannel?.channelID else { return }
@@ -226,24 +192,55 @@ class ChannelsViewModel: ObservableObject {
             }
     }
     
-    // Funktion zum Aktualisieren des eigenen Timestamps in den Online Usern
+    // Funktion um die OnlineUser abzurufen
+    func fetchOnlineUsers() {
+        guard let channelID = currentChannel?.channelID else { return }
+        
+        // Abrufen der OnlineUser
+        database.collection("channels")
+            .document(channelID)
+            .collection("onlineUsers")
+            .getDocuments { querySnapshot, error in
+                if let error = error {
+                    print("Fehler beim Abrufen der Online-User: \(error)")
+                    return
+                }
+                
+                // OnlineUser extrahieren (tolles Wort gell)
+                let newUsers = querySnapshot?.documents.compactMap {
+                    try? $0.data(as: OnlineUser.self)
+                } ?? []
+                                
+                // Liste der OnlineUser aktualisieren
+                self.onlineUsers = newUsers
+            }
+    }
+
+    
+    // Funktion um den Timestamp eines OnlineUsers zu updaten
     func updateOnlineUserTimestamp(username: String) {
         guard let channelID = currentChannel?.channelID else { return }
         
-        database.collection("channels").document(channelID).collection("onlineUsers").document(username)
-            .updateData(["timestamp": FieldValue.serverTimestamp()]) { error in
-                if let error = error {
-                    print("Error updating timestamp for \(username): \(error)")
-                } else {
-                    print("Timestamp updated for \(username)")
-                }
+        let onlineUsersRef = database.collection("channels")
+            .document(channelID)
+            .collection("onlineUsers")
+            .document(username)
+
+        // Timestamp updaten
+        onlineUsersRef.updateData(["timestamp": FieldValue.serverTimestamp()]) { error in
+            if let error = error {
+                print("Error updating timestamp for \(username): \(error)")
+            } else {
+                print("Timestamp updated for \(username)")
+                self.fetchOnlineUsers() // OnlineUser updaten
             }
+        }
     }
+
     
     // Funktion um den Nutzer aus den Online Users des Channels zu entfernen
     func onChannelLeave(username: String) {
         guard let channelID = currentChannel?.channelID else { return }
-        stopOnlineUsersListener()
         
         database.collection("channels").document(channelID).collection("onlineUsers").document(username)
             .delete() { error in

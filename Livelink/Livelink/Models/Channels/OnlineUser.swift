@@ -8,7 +8,7 @@
 import FirebaseFirestore
 
 // Datenstruktur für das Speichern eines Nutzers in der Online-Benutzerliste
-struct OnlineUser: Codable {
+struct OnlineUser: Codable, Equatable {
     var username: String = ""
     var age: String = ""
     var gender: String = ""
@@ -16,6 +16,11 @@ struct OnlineUser: Codable {
     var status: Int = 0
     var joinTimestamp: Timestamp = Timestamp(date: Date())
     var timestamp: Timestamp = Timestamp(date: Date())
+    
+    static func == (lhs: OnlineUser, rhs: OnlineUser) -> Bool {
+            return lhs.username == rhs.username &&
+                   lhs.joinTimestamp == rhs.joinTimestamp
+        }
     
     func toDictionary() -> [String: Any] {
             return [
