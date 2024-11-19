@@ -124,15 +124,11 @@ class ChannelsViewModel: ObservableObject {
     }
     
     
-    
-    
-    
-    
     func handleSendMessage(username: String, content: String) {
         let message = Message(senderId: username, content: content)
         
         DispatchQueue.main.async {
-            self.messages.append(message)
+            self.sendMessage(message: message)
         }
         // Prüfen, ob die Nachricht mit "Paul" beginnt
         if content.lowercased().hasPrefix("paul") {
@@ -153,7 +149,7 @@ class ChannelsViewModel: ObservableObject {
                         content: botResponse.choices.first?.message.content ?? "Ich mache aktuell eine Pause."
                     )
                     DispatchQueue.main.async {
-                        self.messages.append(botMessage)
+                        self.sendMessage(message: botMessage)
                     }
                 }
             }
