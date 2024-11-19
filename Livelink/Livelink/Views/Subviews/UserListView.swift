@@ -15,7 +15,7 @@ struct UserListView: View {
         HStack {
             Spacer()
             VStack {
-                Text("Benutzerliste")
+                Text("Nutzer im Channel")
                     .font(.headline)
                     .padding()
                     .background(Color.blue)
@@ -23,10 +23,12 @@ struct UserListView: View {
 
                 ScrollView {
                     VStack(alignment: .leading) {
-                        /*ForEach(channelsViewModel.users, id: \.username) { user in
+                        ForEach(channelsViewModel.onlineUsers, id: \.username) { user in
                             Text(user.username)
+                                .font(.headline)
                                 .padding(.vertical, 5)
-                        }*/
+                                .foregroundColor(.white)
+                        }
                     }
                     .padding()
                 }
@@ -34,7 +36,7 @@ struct UserListView: View {
                 Spacer()
             }
             .frame(width: 250)  // Breite der Benutzerliste
-            .background(Color.gray.opacity(0.8))
+            .background(Color.black.opacity(0.5))
             .cornerRadius(10)
             .transition(.move(edge: .trailing))
             .animation(.easeInOut, value: isUserListVisible)

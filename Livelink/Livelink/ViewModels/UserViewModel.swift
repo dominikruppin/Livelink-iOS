@@ -26,8 +26,7 @@ class UserViewModel: ObservableObject {
     @Published var showProfilePopup: Bool = false // Anzeige für Profil-Popup
     @Published var isLoadingUserData: Bool = true // Ladeanzeige für Userdaten
     @Published var errorMessage: String? // Fehlermeldungen
-    
-    private var cancellables = Set<AnyCancellable>() // Für Combine
+    //private var cancellables = Set<AnyCancellable>() // Für Combine
     private var userDataListener: ListenerRegistration? // Echtzeit-Listener für Userdaten
     
     init() {

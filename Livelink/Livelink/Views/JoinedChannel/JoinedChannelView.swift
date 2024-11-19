@@ -8,7 +8,6 @@
 import SwiftUI
 
 // Wird angezeigt wenn man einen Channel betritt. Beinhaltet die Anzeige der Chatnachrichten sowie Eingabeleiste zum senden von Nachrichten an den Channel.
-// TODO: USERLISTE
 struct JoinedChannelView: View {
     @EnvironmentObject var channelsViewModel: ChannelsViewModel
     @EnvironmentObject var userViewModel: UserViewModel
@@ -18,6 +17,7 @@ struct JoinedChannelView: View {
     @Binding var isChannelActive: Bool
     @Binding var selectedChannel: Channel?
     @State private var commandStatusMessage: String?
+    @State private var timer: Timer?
 
     var body: some View {
         GeometryReader { geometry in
@@ -139,9 +139,11 @@ struct JoinedChannelView: View {
                 Task {
                     await joinChannelAndFetchMessages()
                 }
+                startOnlineUserUpdateTimer()
             }
             .onDisappear {
                 channelsViewModel.onChannelLeave(username: userViewModel.userData!.username)
+                stopOnlineUserUpdateTimer()
             }
             .sheet(isPresented: $userViewModel.showProfilePopup) {
                 if let profileData = userViewModel.profileUserData {
@@ -208,5 +210,19 @@ struct JoinedChannelView: View {
         DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
             self.commandStatusMessage = nil
         }
+    }
+    
+    // Updatet alle 2 Sekunden den Timestamp in FireStore, um zu signalisieren, dass man noch im Channel verbunden ist
+    private func startOnlineUserUpdateTimer() {
+        timer = Timer.scheduledTimer(withTimeInterval: 2.0, repeats: true) { _ in
+            guard let username = userViewModel.userData?.username else { return }
+            channelsViewModel.updateOnlineUserTimestamp(username: username)
+        }
+    }
+
+    // Beendet das updaten des Timestamps
+    private func stopOnlineUserUpdateTimer() {
+        timer?.invalidate()
+        timer = nil
     }
 }
