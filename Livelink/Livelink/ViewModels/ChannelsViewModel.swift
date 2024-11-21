@@ -21,6 +21,7 @@ class ChannelsViewModel: ObservableObject {
     private var database = FirebaseManager.shared.database
     private let botViewModel = BotViewModel()
     private var onlineUsersListener: ListenerRegistration?
+    private var messagesListener: ListenerRegistration?
     
     // Direkt beim starten der App holen wir uns die aktuelle Channelliste
     init() {
@@ -98,8 +99,11 @@ class ChannelsViewModel: ObservableObject {
         guard let channelID = currentChannel?.channelID else { return }
         guard let joinTimestamp = currentChannel?.timestamp else { return }
         
-        // Neue Nachrichten mit einem höheren Timestamp als der Beitritts-Timestamp laden
-        database.collection("channels")
+        // Vorhandenen Listener stoppen, falls er aktiv ist
+        messagesListener?.remove()
+        
+        // Nachrichten abrufen und Listener registrieren
+        messagesListener = database.collection("channels")
             .document(channelID)
             .collection("messages")
             .order(by: "timestamp", descending: false)
@@ -122,6 +126,12 @@ class ChannelsViewModel: ObservableObject {
                 
                 print("Loaded messages: \(self.messages)")
             }
+    }
+    
+    func stopMessagesListener() {
+        messagesListener?.remove()
+        messagesListener = nil
+        print("Messages listener gestoppt.")
     }
     
     // Ist für das senden von Nachrichten an FireStore zuständig. Prüft ebenfalls ob der Bot angesprochen wurde und führt API Call aus

@@ -144,6 +144,7 @@ struct JoinedChannelView: View {
             .onDisappear {
                 channelsViewModel.onChannelLeave(username: userViewModel.userData!.username)
                 stopOnlineUserUpdateTimer()
+                channelsViewModel.stopMessagesListener()
             }
             .sheet(isPresented: $userViewModel.showProfilePopup) {
                 if let profileData = userViewModel.profileUserData {
