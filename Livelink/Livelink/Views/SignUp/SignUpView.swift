@@ -10,7 +10,7 @@ import Combine
 
 // View für die Registrierung
 struct SignUpView: View {
-    @Environment(\.presentationMode) var presentationMode // Für die Navigation zurück
+    @Environment(\.presentationMode) var presentationMode
     @EnvironmentObject var userViewModel: UserViewModel
     @State private var username: String = ""
     @State private var email: String = ""
@@ -23,11 +23,9 @@ struct SignUpView: View {
     @State private var isEmailValid: Bool = true
     @State private var isPasswordConfirmed: Bool = true
     
-    // Für den Hinweis zur Registrierung
     @State private var registrationMessage: String?
     @State private var showRegistrationMessage: Bool = false
     
-    // Regex für gültige Zeichen in Nutzernamen
     private let validUsernameRegex = "^[A-Za-z0-9 ]+$"
     
     var body: some View {
@@ -46,7 +44,6 @@ struct SignUpView: View {
                 
                 Spacer().frame(height: 60)
                 
-                // Benutzername-Eingabefeld mit Verfügbarkeit-Check
                 VStack(alignment: .leading) {
                     TextField("Benutzername", text: $username)
                         .onChange(of: username, perform: { _ in validateUsername() })
@@ -56,16 +53,24 @@ struct SignUpView: View {
                         .frame(maxWidth: 300)
                         .padding(.horizontal)
                     
-                    if !isUsernameAvailable {
-                        Text("Benutzername bereits vergeben")
-                            .foregroundColor(.red)
-                    } else if !isUsernameValid {
-                        Text("Ungültiger Benutzername (nur Buchstaben, Zahlen und Leerzeichen)")
-                            .foregroundColor(.red)
+                    if !isUsernameAvailable || !isUsernameValid {
+                        HStack {
+                            Image(systemName: "exclamationmark.triangle.fill")
+                                .foregroundColor(.red)
+                            Text(!isUsernameValid ? "Ungültiger Benutzername (nur Buchstaben, Zahlen und Leerzeichen)" : "Benutzername bereits vergeben")
+                                .foregroundColor(.red)
+                                .font(.subheadline)
+                                .bold()
+                                .multilineTextAlignment(.leading)
+                        }
+                        .padding(10)
+                        .background(Color.white.opacity(0.8))
+                        .cornerRadius(10)
+                        .frame(maxWidth: 300)
+                        .padding(.horizontal)
                     }
                 }
                 
-                // E-Mail-Eingabefeld mit Validierung
                 VStack(alignment: .leading) {
                     TextField("E-Mail", text: $email)
                         .onChange(of: email) { _ in isEmailValid = validateEmail(email) }
@@ -76,12 +81,23 @@ struct SignUpView: View {
                         .padding(.horizontal)
                     
                     if !isEmailValid {
-                        Text("Ungültige E-Mail-Adresse")
-                            .foregroundColor(.red)
+                        HStack {
+                            Image(systemName: "exclamationmark.triangle.fill")
+                                .foregroundColor(.red)
+                            Text("Ungültige E-Mail-Adresse")
+                                .foregroundColor(.red)
+                                .font(.subheadline)
+                                .bold()
+                                .multilineTextAlignment(.leading)
+                        }
+                        .padding(10)
+                        .background(Color.white.opacity(0.8))
+                        .cornerRadius(10)
+                        .frame(maxWidth: 300)
+                        .padding(.horizontal)
                     }
                 }
                 
-                // Passwort-Eingabefelder mit Passwort-Bestätigung
                 SecureField("Passwort", text: $password)
                     .padding()
                     .background(Color.white.opacity(0.9))
@@ -100,27 +116,57 @@ struct SignUpView: View {
                     .padding(.horizontal)
                 
                 if !isPasswordConfirmed {
-                    Text("Passwörter stimmen nicht überein")
-                        .foregroundColor(.red)
-                        .padding(.top, 5)
+                    HStack {
+                        Image(systemName: "exclamationmark.triangle.fill")
+                            .foregroundColor(.red)
+                        Text("Passwörter stimmen nicht überein")
+                            .foregroundColor(.red)
+                            .font(.subheadline)
+                            .bold()
+                            .multilineTextAlignment(.center)
+                    }
+                    .padding(10)
+                    .background(Color.white.opacity(0.8))
+                    .cornerRadius(10)
+                    .frame(maxWidth: 300)
+                    .padding(.horizontal)
                 }
                 
                 if let errorMessage = registrationError {
-                    Text(errorMessage)
-                        .foregroundColor(.red)
-                        .padding()
+                    HStack {
+                        Image(systemName: "exclamationmark.triangle.fill")
+                            .foregroundColor(.red)
+                        Text(errorMessage)
+                            .foregroundColor(.red)
+                            .font(.subheadline)
+                            .bold()
+                            .multilineTextAlignment(.center)
+                    }
+                    .padding()
+                    .background(Color.white.opacity(0.8))
+                    .cornerRadius(10)
+                    .frame(maxWidth: 300)
                 }
                 
                 if showRegistrationMessage, let message = registrationMessage {
-                    Text(message)
-                        .foregroundColor(.green)
-                        .padding()
-                        .transition(.opacity)
+                    HStack {
+                        Image(systemName: "checkmark.circle.fill")
+                            .foregroundColor(.green)
+                        Text(message)
+                            .foregroundColor(.green)
+                            .font(.subheadline)
+                            .bold()
+                            .multilineTextAlignment(.center)
+                    }
+                    .padding(10)
+                    .background(Color.white.opacity(0.8))
+                    .cornerRadius(10)
+                    .frame(maxWidth: 300)
+                    .padding(.horizontal)
                 }
                 
                 Spacer().frame(height: 30)
                 
-                // Registrieren-Button
                 Button(action: register) {
                     Text("Registrieren")
                         .frame(maxWidth: .infinity)
@@ -139,7 +185,6 @@ struct SignUpView: View {
     }
     
     private func register() {
-        // Vor der Registrierung alle Felder überprüfen
         guard isUsernameAvailable, isUsernameValid, isEmailValid, isPasswordConfirmed else {
             registrationError = "Bitte alle Felder korrekt ausfüllen."
             return
@@ -150,9 +195,8 @@ struct SignUpView: View {
                 registrationMessage = "Registrierung erfolgreich! Du wirst weitergeleitet..."
                 showRegistrationMessage = true
                 
-                // Zeige den Hinweis und leite zur LoginView um
                 DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
-                    presentationMode.wrappedValue.dismiss() // Zurück zur LoginView
+                    presentationMode.wrappedValue.dismiss()
                 }
             } else {
                 registrationError = "Fehler bei der Registrierung. Versuche es erneut."
@@ -163,7 +207,6 @@ struct SignUpView: View {
     }
     
     private func validateUsername() {
-        // Überprüfen, ob der Benutzername gültig ist
         isUsernameValid = username.range(of: validUsernameRegex, options: .regularExpression) != nil
         if isUsernameValid {
             userViewModel.isUsernameTaken(username: username) { isTaken in
@@ -175,7 +218,6 @@ struct SignUpView: View {
     }
     
     private func validateEmail(_ email: String) -> Bool {
-        // Regex Prüfung für die Emailadresse
         let emailRegex = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$"
         return email.range(of: emailRegex, options: .regularExpression) != nil
     }

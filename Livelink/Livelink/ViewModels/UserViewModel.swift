@@ -343,6 +343,25 @@ class UserViewModel: ObservableObject {
             }
     }
     
+    // Funktion zum zurücksetzen des Passwortes
+    func resetPassword(username: String, completion: @escaping (Bool, String) -> Void) {
+        getMailFromUsername(username: username) { [weak self] email in
+            guard let email = email else {
+                completion(false, "Benutzername nicht gefunden.")
+                return
+            }
+            
+            self?.auth.sendPasswordReset(withEmail: email) { error in
+                if let error = error {
+                    completion(false, "Fehler beim Zurücksetzen des Passworts: \(error.localizedDescription)")
+                } else {
+                    completion(true, "Passwort-Zurücksetzungslink per E-Mail gesendet.")
+                }
+            }
+        }
+    }
+
+    
     // Suche nach Nutzern
     func searchUsers(query: String) {
         let queryLowercase = query.lowercased()

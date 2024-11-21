@@ -10,29 +10,29 @@ import SwiftUI
 // View für den Login
 struct LoginView: View {
     @EnvironmentObject var userViewModel: UserViewModel
-    @State private var username: String = "" // Benutzername speichern
-    @State private var password: String = "" // Passwort speichern
-    @State private var loginError: String? // Fehlernachricht
+    @State private var username: String = ""
+    @State private var password: String = ""
+    @State private var loginError: String?
+    @State private var showResetPasswordView: Bool = false
+    @State private var resetPasswordMessage: String?
 
     var body: some View {
         NavigationView {
             ZStack {
-                // Hintergrundbild
                 Image("background")
                     .resizable()
                     .scaledToFill()
                     .edgesIgnoringSafeArea(.all)
-
+                
                 VStack {
                     Text("Login")
                         .font(.largeTitle)
                         .fontWeight(.bold)
                         .foregroundColor(.white)
                         .padding(.top, 60)
-
+                    
                     Spacer().frame(height: 60)
-
-                    // Benutzername-Eingabefeld
+                    
                     TextField("Benutzername", text: $username)
                         .textFieldStyle(PlainTextFieldStyle())
                         .padding()
@@ -40,8 +40,7 @@ struct LoginView: View {
                         .cornerRadius(10)
                         .frame(maxWidth: 300)
                         .padding(.horizontal)
-
-                    // Passwort-Eingabefeld
+                    
                     SecureField("Passwort", text: $password)
                         .textFieldStyle(PlainTextFieldStyle())
                         .padding()
@@ -49,15 +48,24 @@ struct LoginView: View {
                         .cornerRadius(10)
                         .frame(maxWidth: 300)
                         .padding(.horizontal)
-
-                    // Fehlermeldung anzeigen
+                    
                     if let errorMessage = loginError {
-                        Text(errorMessage)
-                            .foregroundColor(.red)
-                            .padding()
+                        HStack {
+                            Image(systemName: "exclamationmark.triangle.fill")
+                                .foregroundColor(.red)
+                            Text(errorMessage)
+                                .foregroundColor(.red)
+                                .font(.subheadline)
+                                .bold()
+                                .multilineTextAlignment(.center)
+                        }
+                        .padding()
+                        .background(Color.white.opacity(0.8))
+                        .cornerRadius(10)
+                        .frame(maxWidth: 300)
+                        .padding(.top, 10)
                     }
-
-                    // Einloggen-Button
+                    
                     Button(action: {
                         login()
                     }) {
@@ -70,41 +78,78 @@ struct LoginView: View {
                     }
                     .frame(maxWidth: 300)
                     .padding(.horizontal)
-
-                    // Navigationslink zur Registrierung
+                    
+                    Button("Passwort vergessen?") {
+                        showResetPasswordView = true
+                    }
+                    .foregroundColor(.white)
+                    .padding(.top, 10)
+                    
                     NavigationLink(destination: SignUpView().environmentObject(userViewModel)) {
                         Text("Noch kein Konto? Registriere dich hier.")
                             .foregroundColor(Color.white)
                             .padding()
                     }
                     .padding(.top, 10)
-
+                    
                     Spacer()
                 }
                 .padding(.bottom, 40)
-                /*.onAppear {
-                    authViewModel.setupUserEnv()
-                }*/
+            }
+            .sheet(isPresented: $showResetPasswordView) {
+                ZStack {
+                    VStack(spacing: 20) {
+                        Text("Passwort vergessen")
+                            .font(.title2)
+                            .bold()
+                        
+                        TextField("Benutzername", text: $username)
+                            .padding()
+                            .background(Color.white.opacity(0.9))
+                            .cornerRadius(10)
+                            .frame(maxWidth: 300)
+                            .shadow(radius: 10)
+                        
+                        if let message = resetPasswordMessage {
+                            Text(message)
+                                .font(.footnote)
+                                .foregroundColor(.blue)
+                                .multilineTextAlignment(.center)
+                                .padding()
+                        }
+                        
+                        Button("Passwort zurücksetzen") {
+                            userViewModel.resetPassword(username: username) { success, message in
+                                resetPasswordMessage = message
+                            }
+                        }
+                        .buttonStyle(BorderedProminentButtonStyle())
+                        
+                        Button("Abbrechen") {
+                            showResetPasswordView = false
+                        }
+                        .foregroundColor(.red)
+                    }
+                    .padding()
+                    .frame(maxWidth: 400)
+                    .background(Color.white.opacity(0.8))
+                    .cornerRadius(15)
+                }
+                .presentationDetents([.fraction(0.4)])
             }
         }
     }
 
     private func login() {
-        // E-Mail aus dem Benutzernamen abrufen
         userViewModel.getMailFromUsername(username: username) { email in
             guard let email = email else {
                 loginError = "Benutzername nicht gefunden."
                 return
             }
-            print(email)
-
-            // Anmelden mit der E-Mail-Adresse
             userViewModel.login(email: email, password: password) { success in
                 if success {
-                    // Login erfolgreich
-                    print("Benutzer erfolgreich eingeloggt!")
+                    loginError = nil
                 } else {
-                    // Login fehlgeschlagen
                     loginError = "Ungültige Anmeldedaten."
                 }
             }
