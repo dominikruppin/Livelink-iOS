@@ -401,37 +401,50 @@ class UserViewModel: ObservableObject {
     
 
     // Funktion zum hochladen eines neuen Profilbildes
-    func uploadProfileImage(image: UIImage) {
-        guard let uid = FirebaseManager.shared.auth.currentUser?.uid else { return }
-        let timestamp = Int(Date().timeIntervalSince1970) // Aktueller Timestamp in Sekunden
-        // Speicherpfad des Bildes
+    func uploadProfileImage(image: UIImage, completion: @escaping (Bool) -> Void) {
+        print("Uploading profile image...")
+        guard let uid = FirebaseManager.shared.auth.currentUser?.uid else {
+            completion(false)
+            return
+        }
+        
+        let timestamp = Int(Date().timeIntervalSince1970)
         let storageRef = Storage.storage().reference().child("images/\(uid)/profilepics/\(timestamp).jpg")
         
         if let imageData = image.jpegData(compressionQuality: 0.75) {
             storageRef.putData(imageData, metadata: nil) { _, error in
                 if let error = error {
                     print("Error uploading image: \(error.localizedDescription)")
+                    completion(false)
                     return
                 }
                 
                 storageRef.downloadURL { url, error in
                     if let error = error {
                         print("Error getting download URL: \(error.localizedDescription)")
+                        completion(false)
                         return
                     }
                     
                     if let url = url {
-                        self.updateUserProfilePicURL(url.absoluteString)
+                        self.updateUserProfilePicURL(url.absoluteString) { success in
+                            completion(success)
+                        }
                     }
                 }
             }
+        } else {
+            completion(false)
         }
     }
+
     
     // Funktion um die URL des neuen Profilbildes in den Userdaten zu speichern
-    func updateUserProfilePicURL(_ url: String) {
+    func updateUserProfilePicURL(_ url: String, completion: @escaping (Bool) -> Void) {
+        print("Saving updated profile picture URL...")
         guard let uid = FirebaseManager.shared.auth.currentUser?.uid else {
             print("User not authenticated")
+            completion(false)
             return
         }
         
@@ -445,6 +458,8 @@ class UserViewModel: ObservableObject {
             } else {
                 print("Fehler beim Aktualisieren der Profilbild-URL.")
             }
+            completion(success) // Callback
         }
     }
+
 }

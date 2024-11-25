@@ -79,6 +79,23 @@ struct EditProfileView: View {
                         .onTapGesture {
                             isImagePickerPresented.toggle()
                         }
+                        .sheet(isPresented: $isImagePickerPresented, onDismiss: {
+                            if let profileImage = profileImage {
+                                userViewModel.uploadProfileImage(image: profileImage) { success in
+                                    withAnimation {
+                                        saveStatus = success
+                                        ? SaveStatus(message: "Profilbild erfolgreich hochgeladen!", isSuccess: true)
+                                        : SaveStatus(message: "Fehler beim Hochladen des Profilbildes.", isSuccess: false)
+                                    }
+                                }
+                            } else {
+                                withAnimation {
+                                    saveStatus = SaveStatus(message: "Kein Bild ausgewählt.", isSuccess: false)
+                                }
+                            }
+                        }) {
+                            ImagePicker(selectedImage: $profileImage, isPresented: $isImagePickerPresented)
+                        }
                         .frame(maxWidth: .infinity)
                     }
                     .padding(.top, 20)
@@ -230,9 +247,6 @@ struct EditProfileView: View {
                     .disabled(!canEdit)
                 }
             }
-        }
-        .sheet(isPresented: $isImagePickerPresented) {
-            ImagePicker(selectedImage: $profileImage, isPresented: $isImagePickerPresented)
         }
     }
     
