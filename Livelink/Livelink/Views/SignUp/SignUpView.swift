@@ -26,7 +26,7 @@ struct SignUpView: View {
     @State private var registrationMessage: String?
     @State private var showRegistrationMessage: Bool = false
     
-    private let validUsernameRegex = "^[A-Za-z0-9 ]+$"
+    private let validUsernameRegex = "^[A-Za-z0-9 ]+$" // Nur Buchstaben, Zahlen und einzelne Leerzeichen
     
     var body: some View {
         ZStack {
@@ -46,7 +46,9 @@ struct SignUpView: View {
                 
                 VStack(alignment: .leading) {
                     TextField("Benutzername", text: $username)
-                        .onChange(of: username, perform: { _ in validateUsername() })
+                        .onChange(of: username, perform: { _ in validateUsername()
+                            registrationError = nil
+                        })
                         .padding()
                         .background(Color.white.opacity(0.9))
                         .cornerRadius(10)
@@ -73,7 +75,9 @@ struct SignUpView: View {
                 
                 VStack(alignment: .leading) {
                     TextField("E-Mail", text: $email)
-                        .onChange(of: email) { _ in isEmailValid = validateEmail(email) }
+                        .onChange(of: email) { _ in isEmailValid = validateEmail(email)
+                            registrationError = nil
+                        }
                         .padding()
                         .background(Color.white.opacity(0.9))
                         .cornerRadius(10)
@@ -108,6 +112,7 @@ struct SignUpView: View {
                 SecureField("Passwort bestätigen", text: $confirmPassword)
                     .onChange(of: confirmPassword) { _ in
                         isPasswordConfirmed = (password == confirmPassword)
+                        registrationError = nil
                     }
                     .padding()
                     .background(Color.white.opacity(0.9))
@@ -184,13 +189,16 @@ struct SignUpView: View {
         }
     }
     
+    // Registrierung versuchen
     private func register() {
+        registrationError = nil
+        
         guard isUsernameAvailable, isUsernameValid, isEmailValid, isPasswordConfirmed else {
             registrationError = "Bitte alle Felder korrekt ausfüllen."
             return
         }
         
-        userViewModel.register(username: username, email: email, password: password) { success in
+        userViewModel.register(username: username, email: email, password: password) { success, firebaseError in
             if success {
                 registrationMessage = "Registrierung erfolgreich! Du wirst weitergeleitet..."
                 showRegistrationMessage = true
@@ -199,13 +207,14 @@ struct SignUpView: View {
                     presentationMode.wrappedValue.dismiss()
                 }
             } else {
-                registrationError = "Fehler bei der Registrierung. Versuche es erneut."
+                registrationError = firebaseError ?? "Fehler bei der Registrierung. Versuche es erneut."
                 registrationMessage = nil
                 showRegistrationMessage = false
             }
         }
     }
     
+    // Prüfen ob ein Nutzername angegeben wurde und noch verfügbar ist
     private func validateUsername() {
         isUsernameValid = username.range(of: validUsernameRegex, options: .regularExpression) != nil
         if isUsernameValid {
@@ -217,6 +226,7 @@ struct SignUpView: View {
         }
     }
     
+    // Prüfen ob die eingegebene Email im korrekten Format vorliegt
     private func validateEmail(_ email: String) -> Bool {
         let emailRegex = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$"
         return email.range(of: emailRegex, options: .regularExpression) != nil

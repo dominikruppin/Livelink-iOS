@@ -80,17 +80,20 @@ class UserViewModel: ObservableObject {
     }
     
     // Benutzerregistrierung
-    func register(username: String, email: String, password: String, completion: @escaping (Bool) -> Void) {
+    func register(username: String, email: String, password: String, completion: @escaping (Bool, String?) -> Void) {
         auth.createUser(withEmail: email, password: password) { [weak self] result, error in
             guard let self = self else { return }
             
             if let error = error {
                 print("Fehler bei der Registrierung: \(error.localizedDescription)")
-                completion(false)
+                completion(false, error.localizedDescription) // Firebase-Fehlermeldung weitergeben
                 return
             }
             
-            guard let user = result?.user else { return }
+            guard let user = result?.user else {
+                completion(false, "Unbekannter Fehler bei der Registrierung.")
+                return
+            }
             
             let newUserData = UserData(
                 username: username,
@@ -106,14 +109,14 @@ class UserViewModel: ObservableObject {
                 self.usersCollectionReference.document(user.uid).setData(data) { error in
                     if let error = error {
                         print("Fehler beim Speichern der UserData: \(error.localizedDescription)")
-                        completion(false)
+                        completion(false, error.localizedDescription) // Firestore-Fehlermeldung weitergeben
                     } else {
-                        completion(true)
+                        completion(true, nil)
                     }
                 }
             } catch {
                 print("Fehler beim Kodieren der User-Daten: \(error.localizedDescription)")
-                completion(false)
+                completion(false, error.localizedDescription)
             }
         }
     }
