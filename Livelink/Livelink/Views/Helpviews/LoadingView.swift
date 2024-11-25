@@ -7,23 +7,38 @@
 
 import SwiftUI
 
-// Wird beim starten der App angezeigt bis die UserDaten aus Firebase geladen worden sind
-// TODO
 struct LoadingView: View {
+    @State private var isAnimating = false
+
     var body: some View {
-        VStack {
-            ProgressView("Lade Daten...")
-                .progressViewStyle(CircularProgressViewStyle())
-                .font(.title)
-                .padding()
+        ZStack {
+            // Hintergrundbild
+            Image("background")
+                .resizable()
+                .scaledToFill()
+                .ignoresSafeArea()
             
-            Text("Bitte warten Sie, während die Daten geladen werden.")
-                .font(.subheadline)
-                .foregroundColor(.gray)
+            ZStack {
+                ForEach(0..<8) { index in
+                    Circle()
+                        .stroke(Color.white.opacity(0.8), lineWidth: 4)
+                        .frame(width: 50, height: 50)
+                        .scaleEffect(isAnimating ? 1 : 0.5)
+                        .opacity(isAnimating ? 0 : 1)
+                        .rotationEffect(.degrees(Double(index) * 45))
+                        .animation(
+                            Animation.easeInOut(duration: 1.5)
+                                .repeatForever()
+                                .delay(Double(index) * 0.2),
+                            value: isAnimating
+                        )
+                }
+            }
+            .frame(width: 100, height: 100)
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color.white)
-        .edgesIgnoringSafeArea(.all)
+        .onAppear {
+            isAnimating = true
+        }
     }
 }
 
