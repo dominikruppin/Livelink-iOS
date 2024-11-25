@@ -30,6 +30,7 @@ struct ChannelsView: View {
                                 Text(category)
                                     .font(.title2)
                                     .fontWeight(.bold)
+                                    .foregroundColor(.white)
                                     .padding(.horizontal, 32)
                                 
                                 ScrollView(.horizontal, showsIndicators: false) {
