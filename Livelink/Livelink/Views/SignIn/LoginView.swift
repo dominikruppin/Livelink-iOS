@@ -135,7 +135,7 @@ struct LoginView: View {
                     .background(Color.white.opacity(0.8))
                     .cornerRadius(15)
                 }
-                .presentationDetents([.fraction(0.4)])
+                .presentationDetents([.fraction(0.4)]) // Anzeige auf 40% vom Bildschirm beschränken
             }
         }
     }

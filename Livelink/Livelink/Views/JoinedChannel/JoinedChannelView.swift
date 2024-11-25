@@ -11,12 +11,19 @@ import SwiftUI
 struct JoinedChannelView: View {
     @EnvironmentObject var channelsViewModel: ChannelsViewModel
     @EnvironmentObject var userViewModel: UserViewModel
+    // Text in der Eingabezeile
     @State private var messageContent = ""
+    // Gibt an ob die Liste der Onlineuser eingeblendet ist oder nicht
     @State private var isUserListVisible = false
+    // Aktueller Channel (entpackt)
     var channel: Channel
+    // Übergebener Boolean ob der Channel aktiv ist (für Navigation)
     @Binding var isChannelActive: Bool
+    // Übergabe des ausgewählten Channels
     @Binding var selectedChannel: Channel?
+    // Rückgabemeldungen bei Befehlsausführungen
     @State private var commandStatusMessage: String?
+    // Timer zum updaten des Online timestamps
     @State private var timer: Timer?
 
     var body: some View {

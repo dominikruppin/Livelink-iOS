@@ -5,6 +5,7 @@
 //  Created by Dominik Ruppin on 01.11.24.
 //
 
+// Wird gezeigt, wenn die Userdaten noch aus Firebase geladen werden
 import SwiftUI
 
 struct LoadingView: View {
